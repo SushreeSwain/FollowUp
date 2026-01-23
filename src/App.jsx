@@ -1,0 +1,33 @@
+import { Routes, Route } from 'react-router-dom';
+
+import Home from './pages/Home';
+import ClientList from './pages/ClientList';
+import AddClient from './pages/AddClient';
+import ClientDetail from './pages/ClientDetail';
+import EditClient from './pages/EditClient';
+import Sessions from './pages/Sessions';
+import ExportClient from './pages/ExportClient';
+import DeleteConfirmation from './pages/DeleteConfirmation';
+import Layout from './components/Layout';
+
+
+function App() {
+  return (
+    <Layout>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/clients" element={<ClientList />} />
+        <Route path="/clients/new" element={<AddClient />} />
+        <Route path="/clients/:id" element={<ClientDetail />} />
+        <Route path="/clients/:id/edit" element={<EditClient />} />
+        <Route path="/clients/:id/sessions" element={<Sessions />} />
+        <Route path="/clients/:id/export" element={<ExportClient />} />
+        <Route path="/clients/:id/delete" element={<DeleteConfirmation />} />
+      </Routes>
+    </Layout>
+  );
+}
+
+
+
+export default App;
