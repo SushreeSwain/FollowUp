@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react';
 import { getAllClients } from '../storage/clients';
+import { useNavigate } from 'react-router-dom';
+
 
 function ClientList() {
   const [clients, setClients] = useState([]);
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     async function loadClients() {
@@ -23,8 +27,11 @@ function ClientList() {
             <ul>
                 {clients.map((client) => (
                      <li key={client.id}>
-                        {client.name}
-                    </li>
+                        <button onClick={() => navigate(`/clients/${client.id}`)}>
+                            {client.name}
+                        </button>
+                     </li>
+
                 ))}
              </ul>
             )}
