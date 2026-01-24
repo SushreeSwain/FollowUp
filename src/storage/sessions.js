@@ -37,12 +37,11 @@ export async function getSessionsByClientId(clientId) {
   const sessions = await db.sessions
     .where('clientId')
     .equals(clientId)
-    .orderBy('date')
-    .reverse()
-    .toArray();
+    .sortBy('date');
 
-  return sessions;
+  return sessions.reverse(); // newest first
 }
+
 
 /**
  * Get a single session by ID
