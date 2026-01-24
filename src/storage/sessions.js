@@ -3,7 +3,7 @@ import { db } from './db';
 /**
  * Add a new session for a client
  */
-export async function addSession({ clientId, date, notes = '' }) {
+export async function addSession({ clientId, date, notes = '', title='' }) {
   if (!clientId) {
     throw new Error('clientId is required');
   }
@@ -17,6 +17,7 @@ export async function addSession({ clientId, date, notes = '' }) {
   const session = {
     clientId,
     date,
+    title,
     notes,
     createdAt: now,
     updatedAt: now
@@ -64,7 +65,7 @@ export async function updateSession(id, updates = {}) {
     throw new Error('session id is required');
   }
 
-  const allowedFields = ['date', 'notes'];
+  const allowedFields = ['date', 'notes', 'title'];
   const filteredUpdates = {};
 
   for (const key of allowedFields) {

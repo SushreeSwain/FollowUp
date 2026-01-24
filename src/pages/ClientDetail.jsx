@@ -22,14 +22,23 @@ import {
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 
+import { Calendar } from '@/components/ui/calendar';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+
 function ClientDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [client, setClient] = useState(null);
   const [sessions, setSessions] = useState([]);
+
   const [searchDate, setSearchDate] = useState('');
-  const [visibleCount, setVisibleCount] = useState(3); // 👈 pagination state
+  const [calendarDate, setCalendarDate] = useState(null);
+  const [visibleCount, setVisibleCount] = useState(3);
 
   useEffect(() => {
     async function loadData() {
@@ -51,7 +60,6 @@ function ClientDetail() {
     ? sessions.filter((session) => session.date === searchDate)
     : sessions;
 
-  // reset pagination when filter changes
   useEffect(() => {
     setVisibleCount(3);
   }, [searchDate]);
@@ -112,107 +120,140 @@ function ClientDetail() {
             </Button>
           </div>
 
-          {/* Filter Box */}
-          <div
-            className="rounded-lg bg-muted p-4 cursor-pointer hover:bg-muted/80"
-            onClick={() =>
-              document
-                .getElementById('session-date-filter')
-                ?.showPicker()
-            }
-          >
+          {/* Calendar Filter */}
+          <div className="rounded-lg bg-muted p-4 hover:bg-muted/80 transition-colors">
             <label className="block mb-2 text-sm font-medium text-muted-foreground">
               Filter by date
             </label>
-            <input
-              id="session-date-filter"
-              type="date"
-              value={searchDate}
-              onChange={(e) => setSearchDate(e.target.value)}
-              className="w-full cursor-pointer rounded-md border border-border bg-background px-3 py-2 text-sm"
-            />
+
+            <div className="flex gap-2">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="flex-1 justify-start text-left font-normal"
+                  >
+                    {searchDate ? formatDate(searchDate) : 'Pick a date'}
+                  </Button>
+                </PopoverTrigger>
+
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={calendarDate}
+                    onSelect={(date) => {
+                      setCalendarDate(date);
+
+                      if (date) {
+                        const yyyy = date.getFullYear();
+                        const mm = String(date.getMonth() + 1).padStart(2, '0');
+                        const dd = String(date.getDate()).padStart(2, '0');
+                        setSearchDate(`${yyyy}-${mm}-${dd}`);
+                      }
+                    }}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+
+              {searchDate && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setSearchDate('');
+                    setCalendarDate(null);
+                  }}
+                >
+                  Clear
+                </Button>
+              )}
+            </div>
           </div>
 
           {/* Sessions Box */}
-          <div className="rounded-lg bg-muted p-4">
-  {visibleSessions.length === 0 ? (
-    <p className="text-sm text-muted-foreground">
-      No sessions yet.
-    </p>
-  ) : (
-    <Accordion type="single" collapsible className="space-y-2">
-      {visibleSessions.map((session) => (
-        <AccordionItem
-          key={session.id}
-          value={String(session.id)}
-          className="rounded-md border border-border bg-background px-3"
-        >
-          <AccordionTrigger className="py-3 hover:no-underline">
-            <div className="flex w-full items-center justify-between">
-              <div className="flex flex-col text-left">
-  <span className="font-medium">
-    {formatDate(session.date)}
-  </span>
+          <div className="rounded-lg bg-muted p-4 hover:bg-muted/80">
+            {visibleSessions.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No sessions yet.
+              </p>
+            ) : (
+              <Accordion type="single" collapsible className="space-y-2">
+                {visibleSessions.map((session) => (
+                  <AccordionItem
+                    key={session.id}
+                    value={String(session.id)}
+                    className="rounded-md border border-border bg-background px-3"
+                  >
+                    <AccordionTrigger className="py-3 hover:no-underline">
+                      <div className="flex flex-col text-left">
+                        <span className="font-medium">
+                          {formatDate(session.date)}
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          {session.title || 'Session'}
+                        </span>
+                      </div>
+                    </AccordionTrigger>
 
-  <span className="text-sm text-muted-foreground">
-    {session.title ||
-      session.notes?.split(' ').slice(0, 4).join(' ') ||
-      'Session'}
-  </span>
-</div>
+                    <AccordionContent className="pb-4 text-sm text-muted-foreground">
+                      <p className="whitespace-pre-wrap">
+                        {session.notes || '—'}
+                      </p>
 
-            </div>
-          </AccordionTrigger>
+                      <div className="mt-4 flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() =>
+                            navigate(
+                              `/clients/${client.id}/sessions/${session.id}/edit`
+                            )
+                          }
+                        >
+                          Edit session
+                        </Button>
 
-          <AccordionContent className="pb-4 text-sm text-muted-foreground">
-            <p className="whitespace-pre-wrap">
-              {session.notes || '—'}
-            </p>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() =>
+                            navigate(
+                              `/clients/${client.id}/sessions/${session.id}`
+                            )
+                          }
+                        >
+                          Open session
+                        </Button>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            )}
 
-            <div className="pt-3">
-              <Button
-                variant="link"
-                size="sm"
-                className="px-0"
-                onClick={() =>
-                  navigate(
-                    `/clients/${client.id}/sessions/${session.id}`
-                  )
-                }
-              >
-                Open session
-              </Button>
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-      ))}
-    </Accordion>
-  )}
-
-  {/* Show more / less */}
-  {filteredSessions.length > 3 && (
-    <div className="pt-3 text-center">
-      {visibleCount < filteredSessions.length ? (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setVisibleCount((prev) => prev + 3)}
-        >
-          Show more sessions
-        </Button>
-      ) : (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setVisibleCount(3)}
-        >
-          Show fewer sessions
-        </Button>
-      )}
-    </div>
-  )}
-</div>
-
+            {filteredSessions.length > 3 && (
+              <div className="pt-3 text-center">
+                {visibleCount < filteredSessions.length ? (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setVisibleCount((prev) => prev + 3)}
+                  >
+                    Show more sessions
+                  </Button>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setVisibleCount(3)}
+                  >
+                    Show fewer sessions
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
         </CardContent>
 
         {/* FOOTER */}
