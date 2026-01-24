@@ -47,6 +47,7 @@ function ClientDetail() {
       <p><strong>Info:</strong> {client.info || '—'}</p>
 
         <h2>Sessions</h2>
+        <h3>Total Recorded Sessions: {sessions.length}</h3>
 
         <button onClick={() => navigate(`/clients/${client.id}/sessions/new`)}>
             Add Session
