@@ -9,6 +9,9 @@ import Sessions from './pages/Sessions';
 import ExportClient from './pages/ExportClient';
 import DeleteConfirmation from './pages/DeleteConfirmation';
 import Layout from './components/Layout';
+import AddSession from './pages/AddSession';
+import SessionDetail from './pages/SessionDetail';
+import EditSession from './pages/EditSession';
 
 
 function App() {
@@ -21,6 +24,9 @@ function App() {
         <Route path="/clients/:id" element={<ClientDetail />} />
         <Route path="/clients/:id/edit" element={<EditClient />} />
         <Route path="/clients/:id/sessions" element={<Sessions />} />
+        <Route path="/clients/:id/sessions/new" element={<AddSession />} />
+        <Route path="/clients/:clientId/sessions/:sessionId" element={<SessionDetail />} />
+        <Route path="/clients/:clientId/sessions/:sessionId/edit" element={<EditSession />} />
         <Route path="/clients/:id/export" element={<ExportClient />} />
         <Route path="/clients/:id/delete" element={<DeleteConfirmation />} />
       </Routes>

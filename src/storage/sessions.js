@@ -39,7 +39,7 @@ export async function getSessionsByClientId(clientId) {
     .equals(clientId)
     .sortBy('date');
 
-  return sessions.reverse(); // newest first
+  return sessions; // newest first
 }
 
 
