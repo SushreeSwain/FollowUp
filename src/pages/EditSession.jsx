@@ -8,6 +8,7 @@ function EditSession() {
 
   const [date, setDate] = useState('');
   const [notes, setNotes] = useState('');
+  const [title, setTitle] = useState('');
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -20,6 +21,7 @@ function EditSession() {
 
       setDate(session.date);
       setNotes(session.notes || '');
+      setTitle(session.title || '');
     }
 
     loadSession();
@@ -33,9 +35,20 @@ function EditSession() {
       return;
     }
 
+    const finalTitle =
+      title.trim() ||
+      notes
+        .trim()
+        .split(' ')
+        .slice(0, 5)
+        .join(' ') ||
+      'Session';
+
     await updateSession(Number(sessionId), {
       date,
-      notes
+      title: finalTitle,
+      notes,
+      updatedAt: new Date().toISOString(),
     });
 
     navigate(`/clients/${clientId}/sessions/${sessionId}`);
@@ -54,6 +67,19 @@ function EditSession() {
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label className="text-sm font-medium">
+            Session title <span className="text-muted-foreground">(optional)</span>
+          </label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="e.g. About mom"
+            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
           />
         </div>
 

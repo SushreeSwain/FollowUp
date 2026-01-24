@@ -4,6 +4,13 @@ import { getClientById, deleteClient } from '../storage/clients';
 import { getSessionsByClientId } from '../storage/sessions';
 import { formatDate } from '../utils/formatDate';
 
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
+
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -127,62 +134,85 @@ function ClientDetail() {
           </div>
 
           {/* Sessions Box */}
-          <div className="rounded-lg bg-muted p-4 space-y-3 hover:bg-muted/80">
-            {visibleSessions.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No sessions yet.
-              </p>
-            ) : (
-              <>
-                <ul className="space-y-2">
-                  {visibleSessions.map((session) => (
-                    <li key={session.id}>
-                      <button
-                        onClick={() =>
-                          navigate(
-                            `/clients/${client.id}/sessions/${session.id}`
-                          )
-                        }
-                        className="w-full rounded-md bg-background px-4 py-3 text-left transition-colors hover:bg-accent"
-                      >
-                        <div className="font-medium">
-                          {formatDate(session.date)}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          {session.notes || '—'}
-                        </div>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+          <div className="rounded-lg bg-muted p-4">
+  {visibleSessions.length === 0 ? (
+    <p className="text-sm text-muted-foreground">
+      No sessions yet.
+    </p>
+  ) : (
+    <Accordion type="single" collapsible className="space-y-2">
+      {visibleSessions.map((session) => (
+        <AccordionItem
+          key={session.id}
+          value={String(session.id)}
+          className="rounded-md border border-border bg-background px-3"
+        >
+          <AccordionTrigger className="py-3 hover:no-underline">
+            <div className="flex w-full items-center justify-between">
+              <div className="flex flex-col text-left">
+  <span className="font-medium">
+    {formatDate(session.date)}
+  </span>
 
-                {/* Show more / less */}
-                {filteredSessions.length > 3 && (
-                  <div className="pt-2 text-center">
-                    {visibleCount < filteredSessions.length ? (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                          setVisibleCount((prev) => prev + 3)
-                        }
-                      >
-                        Show more sessions
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setVisibleCount(3)}
-                      >
-                        Show fewer sessions
-                      </Button>
-                    )}
-                  </div>
-                )}
-              </>
-            )}
-          </div>
+  <span className="text-sm text-muted-foreground">
+    {session.title ||
+      session.notes?.split(' ').slice(0, 4).join(' ') ||
+      'Session'}
+  </span>
+</div>
+
+            </div>
+          </AccordionTrigger>
+
+          <AccordionContent className="pb-4 text-sm text-muted-foreground">
+            <p className="whitespace-pre-wrap">
+              {session.notes || '—'}
+            </p>
+
+            <div className="pt-3">
+              <Button
+                variant="link"
+                size="sm"
+                className="px-0"
+                onClick={() =>
+                  navigate(
+                    `/clients/${client.id}/sessions/${session.id}`
+                  )
+                }
+              >
+                Open session
+              </Button>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      ))}
+    </Accordion>
+  )}
+
+  {/* Show more / less */}
+  {filteredSessions.length > 3 && (
+    <div className="pt-3 text-center">
+      {visibleCount < filteredSessions.length ? (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setVisibleCount((prev) => prev + 3)}
+        >
+          Show more sessions
+        </Button>
+      ) : (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setVisibleCount(3)}
+        >
+          Show fewer sessions
+        </Button>
+      )}
+    </div>
+  )}
+</div>
+
         </CardContent>
 
         {/* FOOTER */}
