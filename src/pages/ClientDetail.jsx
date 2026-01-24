@@ -29,6 +29,22 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from '@/components/ui/avatar';
+
+
+function getInitials(name = '') {
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(word => word[0].toUpperCase())
+    .join('');
+}
+
 function ClientDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -74,14 +90,24 @@ function ClientDetail() {
     <div className="min-h-screen bg-muted p-6">
       <Card className="mx-auto max-w-3xl bg-card/90 border border-border shadow-sm">
         {/* HEADER */}
-        <CardHeader>
-          <CardTitle className="text-2xl font-semibold">
-            {client.name}
-          </CardTitle>
-          <CardDescription>
-            Client details and session history
-          </CardDescription>
+        <CardHeader className="flex flex-row items-center justify-between gap-4">
+            <div>
+                <CardTitle className="text-2xl font-semibold">
+                    {client.name}
+                </CardTitle>
+                <CardDescription>
+                    Client details and session history
+                </CardDescription>
+            </div>
+
+            <Avatar className="h-24 w-24">
+                <AvatarImage src={client.avatar || ''} />
+                <AvatarFallback className="text-xl font-medium">
+                    {getInitials(client.name)}
+                </AvatarFallback>
+            </Avatar>
         </CardHeader>
+
 
         {/* CONTENT */}
         <CardContent className="space-y-6">
