@@ -2,13 +2,14 @@ import NavBar from './NavBar';
 
 function Layout({ children }) {
   return (
-    <div>
+    <>
       <NavBar />
-      <main>
+      <main className="min-h-screen bg-background">
         {children}
       </main>
-    </div>
+    </>
   );
 }
+
 
 export default Layout;

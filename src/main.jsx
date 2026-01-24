@@ -3,15 +3,13 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import './index.css';
-import './storage/db';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
-      <App />
+      <div className="dark min-h-screen bg-background text-foreground">
+        <App />
+      </div>
     </BrowserRouter>
   </React.StrictMode>
 );
-
-
-
