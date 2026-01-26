@@ -1,12 +1,17 @@
 import { useEffect, useState } from 'react';
-import { getAllClients } from '../storage/clients';
 import { useNavigate } from 'react-router-dom';
+import { getAllClients } from '../storage/clients';
 
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 
 function ClientList() {
   const [clients, setClients] = useState([]);
   const navigate = useNavigate();
-
 
   useEffect(() => {
     async function loadClients() {
@@ -18,25 +23,30 @@ function ClientList() {
   }, []);
 
   return (
-    <div>
-        <h1>Clients</h1>
+    <div className="space-y-6">
+      
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">Clients</h1>
 
-        {clients.length === 0 ? (
-             <p>No clients yet.</p>
-        ) : (
-            <ul>
-                {clients.map((client) => (
-                     <li key={client.id}>
-                        <button onClick={() => navigate(`/clients/${client.id}`)}>
-                            {client.name}
-                        </button>
-                     </li>
+        <Button
+          onClick={() => navigate('/clients/new')}
+        >
+          + Add Client
+        </Button>
+      </div>
 
-                ))}
-             </ul>
-            )}
-        </div>
-    );
+      {/* Placeholder for next steps */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm text-muted-foreground">
+            Client list will appear here
+          </CardTitle>
+        </CardHeader>
+      </Card>
+
+    </div>
+  );
 }
 
 export default ClientList;
