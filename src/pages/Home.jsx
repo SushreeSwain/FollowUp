@@ -58,7 +58,7 @@ function Home() {
             transition-all
             hover:bg-card/60
             hover:shadow-md
-            hover:-translate-y-[1px]
+            hover:-translate-y-[2px]
             active:scale-[0.99]
             "
         >
@@ -105,15 +105,57 @@ function Home() {
 
 
         {/* Recent Clients Section (placeholder) */}
-        <Card>
-          <CardHeader>
+        <Card
+        className="
+            cursor-pointer
+            transition-all
+            hover:bg-card/60
+            hover:shadow-md
+            hover:-translate-y-[2px]
+            active:scale-[0.99]
+            "
+        >
+        <CardHeader>
             <CardTitle>Recent Clients</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Recently added clients will appear here.
-            </p>
-          </CardContent>
+        </CardHeader>
+
+        <CardContent className="space-y-2">
+            {clients.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                     No clients yet.
+                </p>
+            ) : (
+                clients.slice(0, 5).map((client) => (
+                    <div
+                        key={client.id}
+                        onClick={() => navigate(`/clients/${client.id}`)}
+                        className="
+                            flex items-center gap-4
+                            rounded-md
+                            bg-background
+                            px-4 py-3
+                            cursor-pointer
+                            transition-all
+                            hover:bg-card/70
+                            hover:shadow-sm
+                            hover:-translate-y-[3px]
+                        "
+                    >
+                        <Avatar className="h-10 w-10">
+                            <AvatarFallback className="text-sm font-medium">
+                                {getInitials(client.name)}
+                            </AvatarFallback>
+                        </Avatar>
+
+                        <div className="flex-1">
+                            <p className="font-medium">
+                                {client.name}
+                            </p>
+                        </div>
+                    </div>
+                ))
+            )}
+        </CardContent>
         </Card>
       </div>
     </div>
