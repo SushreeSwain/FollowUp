@@ -55,7 +55,7 @@ function Home() {
         onClick={() => navigate('/clients')}
         className="
             cursor-pointer
-            transition-all
+            transition-all duration-200 ease-out
             hover:bg-card/60
             hover:shadow-md
             hover:-translate-y-[2px]
@@ -108,7 +108,7 @@ function Home() {
         <Card
         className="
             cursor-pointer
-            transition-all
+            transition-all duration-200 ease-out
             hover:bg-card/60
             hover:shadow-md
             hover:-translate-y-[2px]
