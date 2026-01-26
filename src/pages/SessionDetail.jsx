@@ -1,64 +1,117 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getSessionById, deleteSession } from '../storage/sessions';
+import { getClientById } from '../storage/clients';
+import { getSessionById } from '../storage/sessions';
 import { formatDate } from '../utils/formatDate';
 
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from '@/components/ui/card';
+
+import {
+  Avatar,
+  AvatarFallback,
+} from '@/components/ui/avatar';
+
+function getInitials(name = '') {
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(word => word[0].toUpperCase())
+    .join('');
+}
 
 function SessionDetail() {
   const { clientId, sessionId } = useParams();
   const navigate = useNavigate();
+
+  const [client, setClient] = useState(null);
   const [session, setSession] = useState(null);
 
   useEffect(() => {
-    async function loadSession() {
-      const data = await getSessionById(Number(sessionId));
-      if (!data) {
+    async function loadData() {
+      const clientData = await getClientById(Number(clientId));
+      const sessionData = await getSessionById(Number(sessionId));
+
+      if (!clientData || !sessionData) {
         navigate(`/clients/${clientId}`);
         return;
       }
-      setSession(data);
+
+      setClient(clientData);
+      setSession(sessionData);
     }
 
-    loadSession();
-  }, [sessionId, clientId, navigate]);
+    loadData();
+  }, [clientId, sessionId, navigate]);
 
-  if (!session) {
-    return <p>Loading session...</p>;
+  if (!client || !session) {
+    return <p>Loading...</p>;
   }
 
   return (
-    <div>
-      <h1>Session on {formatDate(session.date)}</h1>
+    <div className="min-h-screen bg-muted flex items-center justify-center p-6">
+      <Card className="w-full max-w-lg">
+        {/* HEADER */}
+        <CardHeader className="space-y-4">
+          <div className="flex items-center gap-4">
+            <Avatar className="h-12 w-12">
+              <AvatarFallback className="text-sm font-medium">
+                {getInitials(client.name)}
+              </AvatarFallback>
+            </Avatar>
 
-      <p>{session.notes || '—'}</p>
+            <div>
+              <CardTitle className="text-xl">
+                {client.name}
+              </CardTitle>
+              <CardDescription>
+                {formatDate(session.date)}
+              </CardDescription>
+            </div>
+          </div>
 
-      <button
-        onClick={() =>
-          navigate(
-            `/clients/${clientId}/sessions/${sessionId}/edit`
-          )
-        }
-      >
-        Edit Session
-      </button>
+          {session.title && (
+            <p className="text-sm text-muted-foreground">
+              {session.title}
+            </p>
+          )}
+        </CardHeader>
 
-      <button
-        onClick={async () => {
-          const ok = window.confirm(
-            'Delete this session? This cannot be undone.'
-          );
-          if (!ok) return;
+        {/* CONTENT */}
+        <CardContent>
+          <div className="whitespace-pre-wrap text-sm">
+            {session.notes || 'No notes recorded.'}
+          </div>
+        </CardContent>
 
-          await deleteSession(session.id);
-          navigate(`/clients/${clientId}`);
-        }}
-      >
-        Delete Session
-      </button>
+        {/* ACTIONS */}
+        <CardFooter className="flex justify-between">
+          <Button
+            variant="secondary"
+            onClick={() => navigate(`/clients/${clientId}`)}
+          >
+            Back to Client
+          </Button>
 
-      <button onClick={() => navigate(`/clients/${clientId}`)}>
-        Back to Client
-      </button>
+          <Button
+            onClick={() =>
+              navigate(
+                `/clients/${clientId}/sessions/${sessionId}/edit`
+              )
+            }
+          >
+            Edit Session
+          </Button>
+        </CardFooter>
+      </Card>
     </div>
   );
 }

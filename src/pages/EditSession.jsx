@@ -1,31 +1,76 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { getClientById } from '../storage/clients';
 import { getSessionById, updateSession } from '../storage/sessions';
+import { formatDate } from '../utils/formatDate';
+
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+
+import {
+  Avatar,
+  AvatarFallback,
+} from '@/components/ui/avatar';
+
+import { Calendar } from '@/components/ui/calendar';
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from '@/components/ui/popover';
+
+function getInitials(name = '') {
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(word => word[0].toUpperCase())
+    .join('');
+}
 
 function EditSession() {
   const { clientId, sessionId } = useParams();
   const navigate = useNavigate();
 
-  const [date, setDate] = useState('');
-  const [notes, setNotes] = useState('');
+  const [client, setClient] = useState(null);
+
+  const [date, setDate] = useState(null);
   const [title, setTitle] = useState('');
+  const [notes, setNotes] = useState('');
   const [error, setError] = useState('');
 
   useEffect(() => {
-    async function loadSession() {
-      const session = await getSessionById(Number(sessionId));
-      if (!session) {
+    async function loadData() {
+      const clientData = await getClientById(Number(clientId));
+      const sessionData = await getSessionById(Number(sessionId));
+
+      if (!clientData || !sessionData) {
         navigate(`/clients/${clientId}`);
         return;
       }
 
-      setDate(session.date);
-      setNotes(session.notes || '');
-      setTitle(session.title || '');
+      setClient(clientData);
+
+      // convert yyyy-mm-dd → Date
+      const [y, m, d] = sessionData.date.split('-');
+      setDate(new Date(y, m - 1, d));
+
+      setTitle(sessionData.title || '');
+      setNotes(sessionData.notes || '');
     }
 
-    loadSession();
-  }, [sessionId, clientId, navigate]);
+    loadData();
+  }, [clientId, sessionId, navigate]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -35,64 +80,119 @@ function EditSession() {
       return;
     }
 
-    const finalTitle =
-      title.trim() ||
-      notes
-        .trim()
-        .split(' ')
-        .slice(0, 5)
-        .join(' ') ||
-      'Session';
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
 
     await updateSession(Number(sessionId), {
-      date,
-      title: finalTitle,
-      notes,
-      updatedAt: new Date().toISOString(),
+      date: `${yyyy}-${mm}-${dd}`,
+      title: title.trim(),
+      notes: notes.trim(),
     });
 
-    navigate(`/clients/${clientId}/sessions/${sessionId}`);
+    navigate(`/clients/${clientId}`);
+  }
+
+  if (!client || !date) {
+    return <p>Loading...</p>;
   }
 
   return (
-    <div>
-      <h1>Edit Session</h1>
+    <div className="min-h-screen bg-muted flex items-center justify-center p-6">
+      <Card className="w-full max-w-lg">
+        {/* HEADER */}
+        <CardHeader className="space-y-4">
+          <div className="flex items-center gap-4">
+            <Avatar className="h-12 w-12">
+              <AvatarFallback className="text-sm font-medium">
+                {getInitials(client.name)}
+              </AvatarFallback>
+            </Avatar>
 
-      {error && <p>{error}</p>}
+            <div>
+              <CardTitle className="text-xl">
+                {client.name}
+              </CardTitle>
+              <CardDescription>
+                Editing session
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Date</label><br />
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-          />
-        </div>
+        {/* FORM */}
+        <form onSubmit={handleSubmit}>
+          <CardContent className="space-y-5">
+            {error && (
+              <p className="text-sm text-destructive">
+                {error}
+              </p>
+            )}
 
-        <div className="space-y-1">
-          <label className="text-sm font-medium">
-            Session title <span className="text-muted-foreground">(optional)</span>
-          </label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="e.g. About mom"
-            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-          />
-        </div>
+            {/* Date */}
+            <div className="space-y-1">
+              <Label>Session date</Label>
 
-        <div>
-          <label>Notes</label><br />
-          <textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-          />
-        </div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-left font-normal"
+                  >
+                    {formatDate(date)}
+                  </Button>
+                </PopoverTrigger>
 
-        <button type="submit">Save Changes</button>
-      </form>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={setDate}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {/* Title */}
+            <div className="space-y-1">
+              <Label>
+                Session title{' '}
+                <span className="text-muted-foreground">(optional)</span>
+              </Label>
+              <Input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+            </div>
+
+            {/* Notes */}
+            <div className="space-y-1">
+              <Label>Notes</Label>
+              <Textarea
+                rows={4}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+              />
+            </div>
+          </CardContent>
+
+          {/* ACTIONS */}
+          <CardFooter className="flex justify-between">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => navigate(`/clients/${clientId}`)}
+            >
+              Cancel
+            </Button>
+
+            <Button type="submit">
+              Save changes
+            </Button>
+          </CardFooter>
+        </form>
+      </Card>
     </div>
   );
 }
