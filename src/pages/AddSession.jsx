@@ -1,86 +1,197 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { getClientById } from '../storage/clients';
 import { addSession } from '../storage/sessions';
+import { formatDate } from '../utils/formatDate';
 
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+
+import {
+  Avatar,
+  AvatarFallback,
+} from '@/components/ui/avatar';
+
+import { Calendar } from '@/components/ui/calendar';
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from '@/components/ui/popover';
+
+function getInitials(name = '') {
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(word => word[0].toUpperCase())
+    .join('');
+}
 
 function AddSession() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [date, setDate] = useState('');
+  const [client, setClient] = useState(null);
+
+  const [date, setDate] = useState(null);
+  const [title, setTitle] = useState('');
   const [notes, setNotes] = useState('');
   const [error, setError] = useState('');
-  const [title, setTitle] = useState('');
 
+  useEffect(() => {
+    async function loadClient() {
+      const data = await getClientById(Number(id));
+      if (!data) {
+        navigate('/clients');
+        return;
+      }
+      setClient(data);
+    }
+
+    loadClient();
+  }, [id, navigate]);
 
   async function handleSubmit(e) {
     e.preventDefault();
 
     if (!date) {
-        setError('Session date is required');
-        return;
+      setError('Session date is required');
+      return;
     }
 
-    const finalTitle =
-        title.trim() ||
-        notes
-            .trim()
-            .split(' ')
-            .slice(0, 5)
-            .join(' ') ||
-        'Session';
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
 
     await addSession({
-        clientId: Number(id),
-        date,
-        title: finalTitle,
-        notes
+      clientId: Number(id),
+      date: `${yyyy}-${mm}-${dd}`,
+      title: title.trim(),
+      notes: notes.trim(),
     });
 
     navigate(`/clients/${id}`);
-    }
+  }
 
+  if (!client) {
+    return <p>Loading...</p>;
+  }
 
   return (
-    <div>
-      <h1>Add Session</h1>
+    <div className="min-h-screen bg-muted flex items-center justify-center p-6">
+      <Card className="w-full max-w-lg">
+        {/* HEADER */}
+        <CardHeader className="space-y-4">
+          <div className="flex items-center gap-4">
+            <Avatar className="h-12 w-12">
+              <AvatarFallback className="text-sm font-medium">
+                {getInitials(client.name)}
+              </AvatarFallback>
+            </Avatar>
 
-      {error && <p>{error}</p>}
+            <div>
+              <CardTitle className="text-xl">
+                {client.name}
+              </CardTitle>
+              <CardDescription>
+                {client.contactInfo || 'No contact info'}
+              </CardDescription>
+            </div>
+          </div>
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Date</label><br />
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-          />
-        </div>
+          {client.info && (
+            <p className="text-sm text-muted-foreground">
+              {client.info}
+            </p>
+          )}
+        </CardHeader>
 
-        <div className="space-y-1">
-            <label className="text-sm font-medium">
-                Session title <span className="text-muted-foreground">(optional)</span>
-            </label>
-            <input
-                type="text"
+        {/* FORM */}
+        <form onSubmit={handleSubmit}>
+          <CardContent className="space-y-5">
+            {error && (
+              <p className="text-sm text-destructive">
+                {error}
+              </p>
+            )}
+
+            {/* Date */}
+            <div className="space-y-1">
+              <Label>Session date</Label>
+
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-left font-normal"
+                  >
+                    {date ? formatDate(date) : 'Pick a date'}
+                  </Button>
+                </PopoverTrigger>
+
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={setDate}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {/* Title */}
+            <div className="space-y-1">
+              <Label>
+                Session title{' '}
+                <span className="text-muted-foreground">(optional)</span>
+              </Label>
+              <Input
+                placeholder="e.g. About family"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g. About mom"
-                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-            />
-        </div>
+              />
+            </div>
 
+            {/* Notes */}
+            <div className="space-y-1">
+              <Label>Notes</Label>
+              <Textarea
+                rows={4}
+                placeholder="Session notes"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+              />
+            </div>
+          </CardContent>
 
-        <div>
-          <label>Notes</label><br />
-          <textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-          />
-        </div>
+          {/* ACTIONS */}
+          <CardFooter className="flex justify-between">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => navigate(`/clients/${id}`)}
+            >
+              Cancel
+            </Button>
 
-        <button type="submit">Save Session</button>
-      </form>
+            <Button type="submit">
+              Save session
+            </Button>
+          </CardFooter>
+        </form>
+      </Card>
     </div>
   );
 }
