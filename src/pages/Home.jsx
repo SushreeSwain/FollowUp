@@ -9,6 +9,22 @@ import {
   CardContent,
 } from '@/components/ui/card';
 
+import {
+  Avatar,
+  AvatarFallback,
+} from '@/components/ui/avatar';
+
+
+function getInitials(name = '') {
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(word => word[0].toUpperCase())
+    .join('');
+}
+
+
 function Home() {
   const [clients, setClients] = useState([]);
   const navigate = useNavigate();
@@ -33,23 +49,47 @@ function Home() {
           </p>
         </div>
 
-        {/* Overview Section */}
+
+
         <Card>
             <CardHeader>
                 <CardTitle>Overview</CardTitle>
             </CardHeader>
+
             <CardContent>
-                <div className="flex items-center gap-6">
+                <div className="flex items-center justify-between">
+                    {/* Left: Stats */}
                     <div>
                         <p className="text-sm text-muted-foreground">Total Clients</p>
                         <p className="text-2xl font-semibold">
                             {clients.length}
                         </p>
                     </div>
+
+                    {/* Right: Avatar strip */}
+                    <div className="flex items-center">
+                        {clients.slice(0, 5).map((client, index) => (
+                            <Avatar
+                                key={client.id}
+                                className={`h-10 w-10 border border-background ${
+                                    index !== 0 ? '-ml-2' : ''
+                                }`}
+                            >
+                                <AvatarFallback className="text-xs font-medium">
+                                    {getInitials(client.name)}
+                                </AvatarFallback>
+                            </Avatar>
+                        ))}
+
+                        {clients.length > 5 && (
+                            <div className="-ml-2 h-10 w-10 rounded-full bg-muted flex items-center justify-center text-xs text-muted-foreground border border-background">
+                                +{clients.length - 5}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </CardContent>
         </Card>
-
 
 
 
