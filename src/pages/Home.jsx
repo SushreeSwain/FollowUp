@@ -51,13 +51,24 @@ function Home() {
 
 
 
-        <Card>
+        <Card
+        onClick={() => navigate('/clients')}
+        className="
+            cursor-pointer
+            transition-all
+            hover:bg-card/60
+            hover:shadow-md
+            hover:-translate-y-[1px]
+            active:scale-[0.99]
+            "
+        >
             <CardHeader>
                 <CardTitle>Overview</CardTitle>
             </CardHeader>
 
             <CardContent>
-                <div className="flex items-center justify-between">
+                <div 
+                className="flex items-center justify-between">
                     {/* Left: Stats */}
                     <div>
                         <p className="text-sm text-muted-foreground">Total Clients</p>
