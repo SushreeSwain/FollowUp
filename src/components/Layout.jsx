@@ -26,7 +26,7 @@ function Layout({ children }) {
         </div>
       )}
 
-      <main className="min-h-screen bg-background px-6 pt-4">
+      <main className="min-h-screen bg-background px-6 pt-4 pb-8">
         {children}
       </main>
       <Footer/>

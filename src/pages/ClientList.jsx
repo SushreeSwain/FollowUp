@@ -113,26 +113,26 @@ function ClientList() {
 
 
     {clients.length > 10 && (
-  <div className="pt-4 text-center">
-    {visibleCount < clients.length ? (
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => setVisibleCount((prev) => prev + 10)}
-      >
-        Show more clients
-      </Button>
-    ) : (
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => setVisibleCount(10)}
-      >
-        Show fewer clients
-      </Button>
+        <div className="pt-4 text-center">
+            {visibleCount < clients.length ? (
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setVisibleCount((prev) => prev + 10)}
+                >
+                    Show more clients
+                </Button>
+            ) : (
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setVisibleCount(10)}
+                >
+                    Show fewer clients
+                </Button>
+            )}
+        </div>
     )}
-  </div>
-)}
 
 
     </div>
