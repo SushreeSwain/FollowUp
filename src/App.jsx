@@ -32,6 +32,7 @@ function App() {
         <Route path="/clients/:id/export" element={<ExportClient />} />
         <Route path="/clients/:id/delete" element={<DeleteConfirmation />} />
         <Route path="/not-found" element={<NotFound />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Layout>
   );
