@@ -58,11 +58,19 @@ function ClientDetail() {
 
   useEffect(() => {
     async function loadData() {
-      const clientData = await getClientById(Number(id));
-      if (!clientData) {
-        navigate('/clients');
+      const numericId = Number(id);
+
+      if (!id || isNaN(numericId)) {
+      navigate('/not-found');
+      return;
+    }
+
+    const clientData = await getClientById(numericId);
+
+    if (!clientData) {
+        navigate('/not-found');
         return;
-      }
+    }
 
       const sessionData = await getSessionsByClientId(Number(id));
       setClient(clientData);

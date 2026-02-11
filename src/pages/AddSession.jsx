@@ -51,6 +51,14 @@ function AddSession() {
 
   useEffect(() => {
     async function loadClient() {
+
+       const numericId = Number(id);
+
+        if (!id || isNaN(numericId)) {
+            navigate('/not-found');
+            return;
+        }
+ 
       const data = await getClientById(Number(id));
       if (!data) {
         navigate('/clients');

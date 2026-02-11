@@ -12,6 +12,8 @@ import Layout from './components/Layout';
 import AddSession from './pages/AddSession';
 import SessionDetail from './pages/SessionDetail';
 import EditSession from './pages/EditSession';
+import NotFound from './pages/NotFound';
+
 
 
 function App() {
@@ -29,6 +31,7 @@ function App() {
         <Route path="/clients/:clientId/sessions/:sessionId/edit" element={<EditSession />} />
         <Route path="/clients/:id/export" element={<ExportClient />} />
         <Route path="/clients/:id/delete" element={<DeleteConfirmation />} />
+        <Route path="/not-found" element={<NotFound />} />
       </Routes>
     </Layout>
   );

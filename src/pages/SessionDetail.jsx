@@ -37,6 +37,27 @@ function SessionDetail() {
 
   useEffect(() => {
     async function loadData() {
+        const numericClientId = Number(clientId);
+        const numericSessionId = Number(sessionId);
+
+        if (
+            !clientId ||
+            !sessionId ||
+            isNaN(numericClientId) ||
+            isNaN(numericSessionId)
+        ) {
+            navigate('/not-found');
+            return;
+        }
+
+        const session = await getSessionById(numericSessionId);
+
+        if (!session || session.clientId !== numericClientId) {
+            navigate('/not-found');
+            return;
+        }
+
+
       const clientData = await getClientById(Number(clientId));
       const sessionData = await getSessionById(Number(sessionId));
 

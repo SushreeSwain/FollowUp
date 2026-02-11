@@ -26,9 +26,17 @@ function EditClient() {
 
   useEffect(() => {
     async function loadClient() {
+        const numericId = Number(id);
+
+        if (!id || isNaN(numericId)) {
+            navigate('/not-found');
+            return;
+        }
+
+
       const client = await getClientById(Number(id));
       if (!client) {
-        navigate('/clients');
+        navigate('/not-found');
         return;
       }
 
