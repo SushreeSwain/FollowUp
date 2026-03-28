@@ -18,7 +18,7 @@ function NotFound() {
       <Card className="w-full max-w-md bg-card/90 border border-border shadow-sm">
         <CardHeader className="text-center space-y-2">
           <CardTitle className="text-3xl font-semibold">
-            404
+            404 - Page Not Found
           </CardTitle>
           <CardDescription>
             The page you are looking for does not exist.

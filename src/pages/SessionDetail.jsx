@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getClientById } from '../storage/clients';
-import { getSessionById } from '../storage/sessions';
+import { getSessionById } from '../services/sessionService';
 import { formatDate } from '../utils/formatDate';
 
 import { Button } from '@/components/ui/button';

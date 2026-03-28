@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAllClients } from '../storage/clients';
+import { getAllClients } from '../services/clientService';
 
 import {
   Card,

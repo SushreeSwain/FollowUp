@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getClientById, deleteClient } from '../storage/clients';
-import { getSessionsByClientId } from '../storage/sessions';
+import { getClientById, deleteClient } from '../services/clientService';
+import { getSessionsByClientId } from '../services/sessionService';
 import { formatDate } from '../utils/formatDate';
 
 import {
