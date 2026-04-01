@@ -3,6 +3,49 @@ import Session from '../models/Sessions.js';
 
 const router = express.Router();
 
+// ✅ CREATE session
+router.post('/', async (req, res) => {
+  try {
+    const { clientId, date, title, notes } = req.body;
+
+    if (!clientId || !date) {
+      return res.status(400).json({
+        error: 'clientId and date are required',
+      });
+    }
+
+    const session = new Session({
+      clientId,
+      date,
+      title,
+      notes,
+    });
+
+    const saved = await session.save();
+
+    res.status(201).json(saved);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+//SEARCH session
+router.get('/search', async (req, res) => {
+  try {
+    const query = req.query.query;
+
+    const sessions = await Session.find({
+      $or: [
+        { title: { $regex: query, $options: 'i' } },
+        { notes: { $regex: query, $options: 'i' } },
+      ],
+    });
+
+    res.json(sessions);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // ✅ GET sessions by clientId
 router.get('/client/:clientId', async (req, res) => {
@@ -34,33 +77,6 @@ router.get('/:id', async (req, res) => {
 });
 
 
-// ✅ CREATE session
-router.post('/', async (req, res) => {
-  try {
-    const { clientId, date, title, notes } = req.body;
-
-    if (!clientId || !date) {
-      return res.status(400).json({
-        error: 'clientId and date are required',
-      });
-    }
-
-    const session = new Session({
-      clientId,
-      date,
-      title,
-      notes,
-    });
-
-    const saved = await session.save();
-
-    res.status(201).json(saved);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-
 // ✅ UPDATE session
 router.put('/:id', async (req, res) => {
   try {
@@ -71,6 +87,24 @@ router.put('/:id', async (req, res) => {
     );
 
     res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+//SEARCH session
+router.get('/search', async (req, res) => {
+  try {
+    const query = req.query.query;
+
+    const sessions = await Session.find({
+      $or: [
+        { title: { $regex: query, $options: 'i' } },
+        { notes: { $regex: query, $options: 'i' } },
+      ],
+    });
+
+    res.json(sessions);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

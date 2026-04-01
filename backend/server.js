@@ -5,6 +5,8 @@ import cors from 'cors';
 
 import clientRoutes from './routes/ClientRoutes.js';
 import sessionRoutes from './routes/sessionRoutes.js';
+import authRoutes from './routes/authRoutes.js';
+
 
 dotenv.config();
 
@@ -15,6 +17,7 @@ app.use(cors());
 app.use(express.json());
 app.use('/api/clients', clientRoutes);
 app.use('/api/sessions', sessionRoutes);
+app.use('/api/auth', authRoutes);
 
 // test route
 app.get('/', (req, res) => {

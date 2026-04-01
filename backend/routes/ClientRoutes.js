@@ -13,6 +13,21 @@ router.get('/', async (req, res) => {
   }
 });
 
+//SEARCH client
+router.get('/search', async (req, res) => {
+  try {
+    const query = req.query.query;
+
+    const clients = await Client.find({
+      name: { $regex: query, $options: 'i' },
+    });
+
+    res.json(clients);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET client by ID
 router.get('/:id', async (req, res) => {
   try {
@@ -60,6 +75,7 @@ router.put('/:id', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 // DELETE client
 router.delete('/:id', async (req, res) => {
