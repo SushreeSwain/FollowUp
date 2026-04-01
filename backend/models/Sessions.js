@@ -7,7 +7,7 @@ const sessionSchema = new mongoose.Schema({
     required: true,
   },
   date: {
-    type: String,
+    type: Date,
     required: true,
   },
   title: {
@@ -15,6 +15,11 @@ const sessionSchema = new mongoose.Schema({
   },
   notes: {
     type: String,
+  },
+  userId: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'User',
+  required: true,
   },
 }, {
   timestamps: true,

@@ -1,10 +1,11 @@
 import express from 'express';
 import Session from '../models/Sessions.js';
+import authMiddleware from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
 // ✅ CREATE session
-router.post('/', async (req, res) => {
+router.post('/', authMiddleware, async (req, res) => {
   try {
     const { clientId, date, title, notes } = req.body;
 
@@ -19,6 +20,7 @@ router.post('/', async (req, res) => {
       date,
       title,
       notes,
+      userId: req.user.userId, 
     });
 
     const saved = await session.save();
@@ -29,12 +31,13 @@ router.post('/', async (req, res) => {
   }
 });
 
-//SEARCH session
-router.get('/search', async (req, res) => {
+// 🔍 SEARCH session (FIXED: only one + user filtered)
+router.get('/search', authMiddleware, async (req, res) => {
   try {
     const query = req.query.query;
 
     const sessions = await Session.find({
+      userId: req.user.userId,
       $or: [
         { title: { $regex: query, $options: 'i' } },
         { notes: { $regex: query, $options: 'i' } },
@@ -48,10 +51,11 @@ router.get('/search', async (req, res) => {
 });
 
 // ✅ GET sessions by clientId
-router.get('/client/:clientId', async (req, res) => {
+router.get('/client/:clientId', authMiddleware, async (req, res) => {
   try {
     const sessions = await Session.find({
       clientId: req.params.clientId,
+      userId: req.user.userId,
     }).sort({ date: -1 });
 
     res.json(sessions);
@@ -60,11 +64,13 @@ router.get('/client/:clientId', async (req, res) => {
   }
 });
 
-
 // ✅ GET single session
-router.get('/:id', async (req, res) => {
+router.get('/:id', authMiddleware, async (req, res) => {
   try {
-    const session = await Session.findById(req.params.id);
+    const session = await Session.findOne({
+      _id: req.params.id,
+      userId: req.user.userId,
+    });
 
     if (!session) {
       return res.status(404).json({ error: 'Session not found' });
@@ -76,12 +82,14 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-
 // ✅ UPDATE session
-router.put('/:id', async (req, res) => {
+router.put('/:id', authMiddleware, async (req, res) => {
   try {
-    const updated = await Session.findByIdAndUpdate(
-      req.params.id,
+    const updated = await Session.findOneAndUpdate(
+      {
+        _id: req.params.id,
+        userId: req.user.userId,
+      },
       req.body,
       { new: true }
     );
@@ -92,29 +100,14 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-//SEARCH session
-router.get('/search', async (req, res) => {
+// ✅ DELETE session
+router.delete('/:id', authMiddleware, async (req, res) => {
   try {
-    const query = req.query.query;
-
-    const sessions = await Session.find({
-      $or: [
-        { title: { $regex: query, $options: 'i' } },
-        { notes: { $regex: query, $options: 'i' } },
-      ],
+    await Session.findOneAndDelete({
+      _id: req.params.id,
+      userId: req.user.userId,
     });
 
-    res.json(sessions);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-
-// ✅ DELETE session
-router.delete('/:id', async (req, res) => {
-  try {
-    await Session.findByIdAndDelete(req.params.id);
     res.json({ message: 'Session deleted' });
   } catch (err) {
     res.status(500).json({ error: err.message });

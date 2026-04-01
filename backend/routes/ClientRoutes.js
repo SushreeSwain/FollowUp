@@ -1,24 +1,29 @@
 import express from 'express';
 import Client from '../models/Client.js';
+import authMiddleware from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
 // GET all clients
-router.get('/', async (req, res) => {
+router.get('/', authMiddleware, async (req, res) => {
   try {
-    const clients = await Client.find().sort({ createdAt: -1 });
+    const clients = await Client.find({
+      userId: req.user.userId,
+    }).sort({ createdAt: -1 });
+
     res.json(clients);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-//SEARCH client
-router.get('/search', async (req, res) => {
+// SEARCH client
+router.get('/search', authMiddleware, async (req, res) => {
   try {
     const query = req.query.query;
 
     const clients = await Client.find({
+      userId: req.user.userId,
       name: { $regex: query, $options: 'i' },
     });
 
@@ -29,9 +34,12 @@ router.get('/search', async (req, res) => {
 });
 
 // GET client by ID
-router.get('/:id', async (req, res) => {
+router.get('/:id', authMiddleware, async (req, res) => {
   try {
-    const client = await Client.findById(req.params.id);
+    const client = await Client.findOne({
+      _id: req.params.id,
+      userId: req.user.userId,
+    });
 
     if (!client) {
       return res.status(404).json({ error: 'Client not found' });
@@ -44,7 +52,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // ADD new client
-router.post('/', async (req, res) => {
+router.post('/', authMiddleware, async (req, res) => {
   try {
     const { name, contactInfo, info } = req.body;
 
@@ -52,7 +60,13 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Name is required' });
     }
 
-    const client = new Client({ name, contactInfo, info });
+    const client = new Client({
+      name,
+      contactInfo,
+      info,
+      userId: req.user.userId, // 🔥 IMPORTANT
+    });
+
     const savedClient = await client.save();
 
     res.status(201).json(savedClient);
@@ -62,10 +76,13 @@ router.post('/', async (req, res) => {
 });
 
 // UPDATE client
-router.put('/:id', async (req, res) => {
+router.put('/:id', authMiddleware, async (req, res) => {
   try {
-    const updated = await Client.findByIdAndUpdate(
-      req.params.id,
+    const updated = await Client.findOneAndUpdate(
+      {
+        _id: req.params.id,
+        userId: req.user.userId,
+      },
       req.body,
       { new: true }
     );
@@ -76,11 +93,14 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-
 // DELETE client
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authMiddleware, async (req, res) => {
   try {
-    await Client.findByIdAndDelete(req.params.id);
+    await Client.findOneAndDelete({
+      _id: req.params.id,
+      userId: req.user.userId,
+    });
+
     res.json({ message: 'Client deleted' });
   } catch (err) {
     res.status(500).json({ error: err.message });
