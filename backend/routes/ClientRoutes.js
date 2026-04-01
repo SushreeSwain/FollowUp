@@ -3,7 +3,7 @@ import Client from '../models/Client.js';
 
 const router = express.Router();
 
-// ✅ GET all clients
+// GET all clients
 router.get('/', async (req, res) => {
   try {
     const clients = await Client.find().sort({ createdAt: -1 });
@@ -13,7 +13,22 @@ router.get('/', async (req, res) => {
   }
 });
 
-// ✅ ADD new client
+// GET client by ID
+router.get('/:id', async (req, res) => {
+  try {
+    const client = await Client.findById(req.params.id);
+
+    if (!client) {
+      return res.status(404).json({ error: 'Client not found' });
+    }
+
+    res.json(client);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ADD new client
 router.post('/', async (req, res) => {
   try {
     const { name, contactInfo, info } = req.body;
