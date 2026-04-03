@@ -33,17 +33,22 @@ function Login() {
       });
 
       const data = await res.json();
+      console.log("LOGIN RESPONSE:", data);
 
       if (!res.ok) {
         setError(data.error || 'Login failed');
         return;
       }
 
-      // 🔥 SAVE TOKEN HERE
       localStorage.setItem('token', data.token);
 
-      // redirect after login
+      console.log("SAVING USER:", data.user); // 👈 ADD THIS
+
+      localStorage.setItem('user', JSON.stringify(data.user));
+
+      console.log("STORED USER:", localStorage.getItem('user')); // 👈 ADD THIS
       navigate('/');
+
     } catch (err) {
       setError('Something went wrong');
     }

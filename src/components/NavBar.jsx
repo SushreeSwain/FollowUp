@@ -7,7 +7,15 @@ function Navbar() {
   const navigate = useNavigate();
 
   const token = localStorage.getItem('token');
-  const user = JSON.parse(localStorage.getItem('user') || 'null');
+  let user = null;
+
+  try {
+    const storedUser = localStorage.getItem('user');
+    user = storedUser ? JSON.parse(storedUser) : null;
+  } catch (err) {
+    console.error('User parse failed:', err);
+    user = null;
+  }
 
   const navItems = [
     { label: 'Home', path: '/' },
@@ -57,7 +65,7 @@ function Navbar() {
         <div className="flex items-center gap-3 min-w-[180px] justify-end">
           
           {/* Greeting */}
-          {token && user && (
+          {token && user?.name && (
             <span className="text-sm text-muted-foreground hidden sm:block">
               Hi, {user.name}
             </span>
