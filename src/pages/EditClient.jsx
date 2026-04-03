@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getClientById, updateClient } from '../storage/clients';
+import { apiFetch } from '../services/api';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -26,23 +26,16 @@ function EditClient() {
 
   useEffect(() => {
     async function loadClient() {
-        const numericId = Number(id);
+      try {
+        const client = await apiFetch(`/clients/${id}`);
 
-        if (!id || isNaN(numericId)) {
-            navigate('/not-found');
-            return;
-        }
-
-
-      const client = await getClientById(Number(id));
-      if (!client) {
+        setName(client.name || '');
+        setContactInfo(client.contactInfo || '');
+        setInfo(client.info || '');
+      } catch (err) {
+        console.error(err);
         navigate('/not-found');
-        return;
       }
-
-      setName(client.name || '');
-      setContactInfo(client.contactInfo || '');
-      setInfo(client.info || '');
     }
 
     loadClient();
@@ -56,13 +49,21 @@ function EditClient() {
       return;
     }
 
-    await updateClient(Number(id), {
-      name: name.trim(),
-      contactInfo: contactInfo.trim(),
-      info: info.trim(),
-    });
+    try {
+      await apiFetch(`/clients/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          name: name.trim(),
+          contactInfo: contactInfo.trim(),
+          info: info.trim(),
+        }),
+      });
 
-    navigate(`/clients/${id}`);
+      navigate(`/clients/${id}`);
+    } catch (err) {
+      console.error(err);
+      setError('Failed to update client');
+    }
   }
 
   return (

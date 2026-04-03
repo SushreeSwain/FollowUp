@@ -13,6 +13,7 @@ import AddSession from './pages/AddSession';
 import SessionDetail from './pages/SessionDetail';
 import EditSession from './pages/EditSession';
 import NotFound from './pages/NotFound';
+import Login from './pages/Login';
 
 
 
@@ -33,6 +34,7 @@ function App() {
         <Route path="/clients/:id/delete" element={<DeleteConfirmation />} />
         <Route path="/not-found" element={<NotFound />} />
         <Route path="*" element={<NotFound />} />
+        <Route path="/login" element={<Login />} />
       </Routes>
     </Layout>
   );

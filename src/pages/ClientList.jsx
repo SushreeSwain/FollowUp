@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAllClients } from '../services/clientService';
+import { apiFetch } from '../services/api';
 
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 
 import {
   Card,
@@ -33,6 +34,7 @@ function getInitials(name = '') {
 
 function ClientList() {
   const [clients, setClients] = useState([]);
+  const [loading, setLoading] = useState(true); 
   const navigate = useNavigate();
   const [visibleCount, setVisibleCount] = useState(10);
 
@@ -40,8 +42,14 @@ function ClientList() {
 
   useEffect(() => {
     async function loadClients() {
-      const data = await getAllClients();
-      setClients(data);
+      try {
+        const data = await apiFetch('/clients');
+        setClients(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false); 
+      }
     }
 
     loadClients();
@@ -49,7 +57,7 @@ function ClientList() {
 
   return (
     <div className="space-y-6">
-      
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Clients</h1>
@@ -59,8 +67,22 @@ function ClientList() {
         </Button>
       </div>
 
-      {/* Empty state */}
-      {clients.length === 0 && (
+      {/* 🔥 LOADING SKELETON */}
+      {loading ? (
+        <div className="space-y-3">
+          {[...Array(6)].map((_, i) => (
+            <div
+              key={i}
+              className="flex items-center gap-4 rounded-md border border-border bg-card p-3"
+            >
+              <Skeleton className="h-10 w-10 rounded-full" />
+              <Skeleton className="h-4 w-40" />
+            </div>
+          ))}
+        </div>
+      ) : clients.length === 0 ? (
+
+        /* Empty state (only AFTER loading) */
         <Card className="mx-auto max-w-md text-center">
           <CardHeader>
             <CardTitle className="text-lg">
@@ -77,16 +99,14 @@ function ClientList() {
             </Button>
           </div>
         </Card>
-      )}
 
-      {/* Content when clients exist */}
-      {clients.length > 0 && (
+      ) : (
         <>
           {/* Avatar lineup */}
           <div className="flex justify-center">
             {clients.slice(0, 5).map((client, index) => (
               <Avatar
-                key={client.id}
+                key={client._id} 
                 className={`h-12 w-12 border border-background ${
                   index !== 0 ? '-ml-2' : ''
                 }`}
@@ -104,15 +124,14 @@ function ClientList() {
             )}
           </div>
 
-          {/* Client list with accordion */}
+          {/* Client list */}
           <Accordion type="single" collapsible className="space-y-2">
             {visibleClients.map((client) => (
               <AccordionItem
-                key={client.id}
-                value={String(client.id)}
+                key={client._id} 
+                value={String(client._id)} 
                 className="rounded-md border border-border bg-card"
               >
-                {/* Collapsed row */}
                 <AccordionTrigger
                   className="
                     justify-start
@@ -137,10 +156,9 @@ function ClientList() {
                   </div>
                 </AccordionTrigger>
 
-                {/* Expanded content */}
                 <AccordionContent
                   className="px-4 pb-4 pt-2 cursor-pointer"
-                  onClick={() => navigate(`/clients/${client.id}`)}
+                  onClick={() => navigate(`/clients/${client._id}`)}
                 >
                   <div className="space-y-2 text-sm text-muted-foreground">
                     <div>
@@ -164,7 +182,7 @@ function ClientList() {
                       variant="outline"
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`/clients/${client.id}/sessions/new`);
+                        navigate(`/clients/${client._id}/sessions/new`);
                       }}
                     >
                       Schedule session

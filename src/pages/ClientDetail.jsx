@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getClientById, deleteClient } from '../services/clientService';
-import { getSessionsByClientId } from '../services/sessionService';
+import { apiFetch } from '../services/api';
 import { formatDate } from '../utils/formatDate';
 
 import {
@@ -57,28 +56,24 @@ function ClientDetail() {
   const [visibleCount, setVisibleCount] = useState(3);
 
   useEffect(() => {
-    async function loadData() {
-      const numericId = Number(id);
+  async function loadData() {
+    try {
+      console.log("Fetching client:", id);
 
-      if (!id || isNaN(numericId)) {
-      navigate('/not-found');
-      return;
-    }
+      const clientData = await apiFetch(`/clients/${id}`);
 
-    const clientData = await getClientById(numericId);
+      const sessionData = await apiFetch(`/sessions/client/${id}`);
 
-    if (!clientData) {
-        navigate('/not-found');
-        return;
-    }
-
-      const sessionData = await getSessionsByClientId(Number(id));
       setClient(clientData);
       setSessions(sessionData);
+    } catch (err) {
+      console.error("ERROR:", err);
+      navigate('/clients');
     }
+  }
 
-    loadData();
-  }, [id, navigate]);
+  loadData();
+}, [id, navigate]);
 
   const filteredSessions = searchDate
     ? sessions.filter((session) => session.date === searchDate)
@@ -147,7 +142,7 @@ function ClientDetail() {
             <Button
               size="sm"
               onClick={() =>
-                navigate(`/clients/${client.id}/sessions/new`)
+                navigate(`/clients/${client._id}/sessions/new`)
               }
             >
               Add Session
@@ -215,8 +210,8 @@ function ClientDetail() {
               <Accordion type="single" collapsible className="space-y-2">
                 {visibleSessions.map((session) => (
                   <AccordionItem
-                    key={session.id}
-                    value={String(session.id)}
+                    key={session._id}
+                    value={String(session._id)}
                     className="rounded-md border border-border bg-background px-3"
                   >
                     <AccordionTrigger className="py-3 hover:no-underline">
@@ -241,7 +236,7 @@ function ClientDetail() {
                           variant="outline"
                           onClick={() =>
                             navigate(
-                              `/clients/${client.id}/sessions/${session.id}/edit`
+                              `/clients/${client._id}/sessions/${session._id}/edit`
                             )
                           }
                         >
@@ -253,7 +248,7 @@ function ClientDetail() {
                           variant="secondary"
                           onClick={() =>
                             navigate(
-                              `/clients/${client.id}/sessions/${session.id}`
+                              `/clients/${client._id}/sessions/${session._id}`
                             )
                           }
                         >
@@ -303,7 +298,7 @@ function ClientDetail() {
             <Button
               variant="outline"
               onClick={() =>
-                navigate(`/clients/${client.id}/edit`)
+                navigate(`/clients/${client._id}/edit`)
               }
             >
               Edit Client
@@ -317,7 +312,7 @@ function ClientDetail() {
                 );
                 if (!confirmDelete) return;
 
-                await deleteClient(client.id);
+                await deleteClient(client._id);
                 navigate('/clients');
               }}
             >

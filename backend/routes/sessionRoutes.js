@@ -85,14 +85,24 @@ router.get('/:id', authMiddleware, async (req, res) => {
 // ✅ UPDATE session
 router.put('/:id', authMiddleware, async (req, res) => {
   try {
+    const { date, title, notes } = req.body;
+
     const updated = await Session.findOneAndUpdate(
       {
         _id: req.params.id,
         userId: req.user.userId,
       },
-      req.body,
-      { new: true }
+      {
+        ...(date && { date }),
+        ...(title !== undefined && { title }),
+        ...(notes !== undefined && { notes }),
+      },
+      { returnDocument: 'after' }
     );
+
+    if (!updated) {
+      return res.status(404).json({ error: 'Session not found' });
+    }
 
     res.json(updated);
   } catch (err) {

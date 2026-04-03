@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getClientById } from '../storage/clients';
-import { getSessionById } from '../services/sessionService';
+import { apiFetch } from '../services/api';
 import { formatDate } from '../utils/formatDate';
 
 import { Button } from '@/components/ui/button';
@@ -37,37 +36,24 @@ function SessionDetail() {
 
   useEffect(() => {
     async function loadData() {
-        const numericClientId = Number(clientId);
-        const numericSessionId = Number(sessionId);
+      try {
+        const [clientData, sessionData] = await Promise.all([
+          apiFetch(`/clients/${clientId}`),
+          apiFetch(`/sessions/${sessionId}`),
+        ]);
 
-        if (
-            !clientId ||
-            !sessionId ||
-            isNaN(numericClientId) ||
-            isNaN(numericSessionId)
-        ) {
-            navigate('/not-found');
-            return;
+        // optional safety check
+        if (sessionData.clientId !== clientId) {
+          navigate('/not-found');
+          return;
         }
 
-        const session = await getSessionById(numericSessionId);
-
-        if (!session || session.clientId !== numericClientId) {
-            navigate('/not-found');
-            return;
-        }
-
-
-      const clientData = await getClientById(Number(clientId));
-      const sessionData = await getSessionById(Number(sessionId));
-
-      if (!clientData || !sessionData) {
-        navigate(`/clients/${clientId}`);
-        return;
+        setClient(clientData);
+        setSession(sessionData);
+      } catch (err) {
+        console.error(err);
+        navigate('/not-found');
       }
-
-      setClient(clientData);
-      setSession(sessionData);
     }
 
     loadData();

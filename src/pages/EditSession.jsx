@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getClientById } from '../storage/clients';
-import { getSessionById, updateSession } from '../services/sessionService';
+import { apiFetch } from '../services/api';
 import { formatDate } from '../utils/formatDate';
 
 import { Button } from '@/components/ui/button';
@@ -43,7 +42,6 @@ function EditSession() {
   const navigate = useNavigate();
 
   const [client, setClient] = useState(null);
-
   const [date, setDate] = useState(null);
   const [title, setTitle] = useState('');
   const [notes, setNotes] = useState('');
@@ -51,43 +49,30 @@ function EditSession() {
 
   useEffect(() => {
     async function loadData() {
+      try {
+        const [clientData, sessionData] = await Promise.all([
+          apiFetch(`/clients/${clientId}`),
+          apiFetch(`/sessions/${sessionId}`),
+        ]);
 
-    const numericClientId = Number(clientId);
-    const numericSessionId = Number(sessionId);
+        // safety check
+        if (sessionData.clientId.toString() !== clientId) {
+          navigate('/not-found');
+          return;
+        }
 
-    if (
-        !clientId ||
-        !sessionId ||
-        isNaN(numericClientId) ||
-        isNaN(numericSessionId)
-    ) {
+        setClient(clientData);
+
+        // convert yyyy-mm-dd → Date
+        //const [y, m, d] = sessionData.date.split('-');
+        setDate(new Date(sessionData.date));
+
+        setTitle(sessionData.title || '');
+        setNotes(sessionData.notes || '');
+      } catch (err) {
+        console.error(err);
         navigate('/not-found');
-        return;
-    }
-
-    const session = await getSessionById(numericSessionId);
-
-    if (!session || session.clientId !== numericClientId) {
-        navigate('/not-found');
-        return;
-    }
-
-      const clientData = await getClientById(Number(clientId));
-      const sessionData = await getSessionById(Number(sessionId));
-
-      if (!clientData || !sessionData) {
-        navigate(`/clients/${clientId}`);
-        return;
       }
-
-      setClient(clientData);
-
-      // convert yyyy-mm-dd → Date
-      const [y, m, d] = sessionData.date.split('-');
-      setDate(new Date(y, m - 1, d));
-
-      setTitle(sessionData.title || '');
-      setNotes(sessionData.notes || '');
     }
 
     loadData();
@@ -105,13 +90,21 @@ function EditSession() {
     const mm = String(date.getMonth() + 1).padStart(2, '0');
     const dd = String(date.getDate()).padStart(2, '0');
 
-    await updateSession(Number(sessionId), {
-      date: `${yyyy}-${mm}-${dd}`,
-      title: title.trim(),
-      notes: notes.trim(),
-    });
+    try {
+      await apiFetch(`/sessions/${sessionId}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          date: `${yyyy}-${mm}-${dd}`,
+          title: title.trim(),
+          notes: notes.trim(),
+        }),
+      });
 
-    navigate(`/clients/${clientId}`);
+      navigate(`/clients/${clientId}`);
+    } catch (err) {
+      console.error(err);
+      setError('Failed to update session');
+    }
   }
 
   if (!client || !date) {

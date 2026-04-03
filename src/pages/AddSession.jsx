@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getClientById } from '../storage/clients';
-import { addSession } from '../services/sessionService';
+import { apiFetch } from '../services/api';
+//import { addSession } from '../services/api';
 import { formatDate } from '../utils/formatDate';
 
 import { Button } from '@/components/ui/button';
@@ -51,20 +51,13 @@ function AddSession() {
 
   useEffect(() => {
     async function loadClient() {
-
-       const numericId = Number(id);
-
-        if (!id || isNaN(numericId)) {
-            navigate('/not-found');
-            return;
-        }
- 
-      const data = await getClientById(Number(id));
-      if (!data) {
-        navigate('/clients');
-        return;
+      try {
+        const data = await apiFetch(`/clients/${id}`);
+        setClient(data);
+      } catch (err) {
+        console.error(err);
+        navigate('/not-found');
       }
-      setClient(data);
     }
 
     loadClient();
@@ -82,11 +75,14 @@ function AddSession() {
     const mm = String(date.getMonth() + 1).padStart(2, '0');
     const dd = String(date.getDate()).padStart(2, '0');
 
-    await addSession({
-      clientId: Number(id),
-      date: `${yyyy}-${mm}-${dd}`,
-      title: title.trim(),
-      notes: notes.trim(),
+    await apiFetch('/sessions', {
+      method: 'POST',
+      body: JSON.stringify({
+        clientId: id,
+        date: `${yyyy}-${mm}-${dd}`,
+        title: title.trim(),
+        notes: notes.trim(),
+      }),
     });
 
     navigate(`/clients/${id}`);

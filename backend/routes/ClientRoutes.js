@@ -84,7 +84,7 @@ router.put('/:id', authMiddleware, async (req, res) => {
         userId: req.user.userId,
       },
       req.body,
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     res.json(updated);

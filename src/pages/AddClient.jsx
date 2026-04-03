@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { addClient } from '../storage/clients';
+import { apiFetch } from '../services/api';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -31,13 +31,21 @@ function AddClient() {
       return;
     }
 
-    await addClient({
-      name: name.trim(),
-      contactInfo: contactInfo.trim(),
-      info: info.trim(),
-    });
+    try {
+      await apiFetch('/clients', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: name.trim(),
+          contactInfo: contactInfo.trim(),
+          info: info.trim(),
+        }),
+      });
 
-    navigate('/clients');
+      navigate('/clients');
+    } catch (err) {
+      console.error(err);
+      setError('Failed to create client');
+    }
   }
 
   return (
