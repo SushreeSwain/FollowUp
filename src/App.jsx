@@ -14,6 +14,7 @@ import SessionDetail from './pages/SessionDetail';
 import EditSession from './pages/EditSession';
 import NotFound from './pages/NotFound';
 import Login from './pages/Login';
+import Register from './pages/Register';
 
 
 
@@ -35,6 +36,7 @@ function App() {
         <Route path="/not-found" element={<NotFound />} />
         <Route path="*" element={<NotFound />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
       </Routes>
     </Layout>
   );
