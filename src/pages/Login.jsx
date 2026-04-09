@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
@@ -19,6 +20,13 @@ function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if(token){
+        navigate('/');
+    }
+  }, [navigate]);
 
   async function handleLogin(e) {
     e.preventDefault();
