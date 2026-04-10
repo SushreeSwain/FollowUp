@@ -34,7 +34,7 @@ function getInitials(name = '') {
 
 function ClientList() {
   const [clients, setClients] = useState([]);
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const [visibleCount, setVisibleCount] = useState(10);
 
@@ -48,7 +48,7 @@ function ClientList() {
       } catch (err) {
         console.error(err);
       } finally {
-        setLoading(false); 
+        setLoading(false);
       }
     }
 
@@ -138,17 +138,8 @@ function ClientList() {
                   value={String(id)}
                   className="rounded-md border border-border bg-card"
                 >
+                  {/* ✅ CLEAN TRIGGER (NO CLICK LOGIC) */}
                   <AccordionTrigger
-                    onClick={(e) => {
-                      e.stopPropagation();
-
-                      // 👇 if already open → navigate
-                      const isOpen = e.currentTarget.getAttribute('data-state') === 'open';
-
-                      if (isOpen) {
-                        navigate(`/clients/${id}`);
-                      }
-                    }}
                     className="
                       justify-start
                       flex items-center gap-4
@@ -172,7 +163,7 @@ function ClientList() {
                     </div>
                   </AccordionTrigger>
 
-                  {/* ✅ FIXED CLICK AREA */}
+                  {/* ✅ NAVIGATION ONLY HERE */}
                   <AccordionContent className="px-4 pb-4 pt-2">
                     <div
                       onClick={() => navigate(`/clients/${id}`)}

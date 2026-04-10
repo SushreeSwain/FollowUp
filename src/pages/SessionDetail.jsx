@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { formatDate } from '../utils/formatDate';
 import { getClientById } from '../services/clientService';
-import { getSessionsByClientId } from '../services/sessionService';
+import { getSessionById } from '../services/sessionService'; // ✅ FIXED IMPORT
 
 import { Button } from '@/components/ui/button';
 import {
@@ -39,12 +39,12 @@ function SessionDetail() {
     async function loadData() {
       try {
         const [clientData, sessionData] = await Promise.all([
-          getClientById(clientId),
-          getSessionById(sessionId),
+          getClientById(clientId),   // ✅ NO Number()
+          getSessionById(sessionId), // ✅ FIXED
         ]);
 
-        // optional safety check
-        if (sessionData.clientId.toString() !== clientId) {
+        // ✅ SAFE CHECK (works for both online/offline)
+        if (String(sessionData.clientId) !== String(clientId)) {
           navigate('/not-found');
           return;
         }
@@ -67,6 +67,7 @@ function SessionDetail() {
   return (
     <div className="min-h-screen bg-muted flex items-center justify-center p-6">
       <Card className="w-full max-w-lg">
+
         {/* HEADER */}
         <CardHeader className="space-y-4">
           <div className="flex items-center gap-4">
@@ -119,6 +120,7 @@ function SessionDetail() {
             Edit Session
           </Button>
         </CardFooter>
+
       </Card>
     </div>
   );

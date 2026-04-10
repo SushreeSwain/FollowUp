@@ -58,8 +58,8 @@ function ClientDetail() {
   useEffect(() => {
     async function loadData() {
       try {
-        const clientData = await getClientById(Number(id));
-        const sessionData = await getSessionsByClientId(Number(id));
+        const clientData = await getClientById(id);
+        const sessionData = await getSessionsByClientId(id);
 
         setClient(clientData);
         setSessions(Array.isArray(sessionData) ? sessionData : []);
