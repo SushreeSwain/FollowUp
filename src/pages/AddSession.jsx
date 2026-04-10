@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { apiFetch } from '../services/api';
+import { addSession } from '../services/sessionService';
+import { getClientById } from '../services/clientService';
 //import { addSession } from '../services/api';
 import { formatDate } from '../utils/formatDate';
 
@@ -52,7 +53,7 @@ function AddSession() {
   useEffect(() => {
     async function loadClient() {
       try {
-        const data = await apiFetch(`/clients/${id}`);
+        const data = await getClientById(id);
         setClient(data);
       } catch (err) {
         console.error(err);
@@ -75,14 +76,11 @@ function AddSession() {
     const mm = String(date.getMonth() + 1).padStart(2, '0');
     const dd = String(date.getDate()).padStart(2, '0');
 
-    await apiFetch('/sessions', {
-      method: 'POST',
-      body: JSON.stringify({
-        clientId: id,
-        date: `${yyyy}-${mm}-${dd}`,
-        title: title.trim(),
-        notes: notes.trim(),
-      }),
+    await addSession({
+      clientId: id,
+      date: `${yyyy}-${mm}-${dd}`,
+      title: title.trim(),
+      notes: notes.trim(),
     });
 
     navigate(`/clients/${id}`);

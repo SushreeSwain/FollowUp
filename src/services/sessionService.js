@@ -1,26 +1,51 @@
-import * as offline from '../storage/sessions';
+import { apiFetch } from './api';
 
-// Get sessions by client
-export async function getSessionsByClientId(clientId) {
-  return offline.getSessionsByClientId(clientId);
+function isOnline() {
+  return localStorage.getItem('mode') === 'online';
 }
 
-// Get single session
-export async function getSessionById(id) {
-  return offline.getSessionById(id);
-}
-
-// Add session
+// ADD SESSION
 export async function addSession(data) {
-  return offline.addSession(data);
+  if (isOnline()) {
+    return apiFetch('/sessions', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  } else {
+    const { addSession } = await import('../storage/sessions');
+    return addSession(data);
+  }
 }
 
-// Update session
+// GET SESSIONS BY CLIENT
+export async function getSessionsByClientId(clientId) {
+  if (isOnline()) {
+    return apiFetch(`/sessions/client/${clientId}`);
+  } else {
+    const { getSessionsByClientId } = await import('../storage/sessions');
+    return getSessionsByClientId(Number(clientId));
+  }
+}
+
+// GET SINGLE SESSION
+export async function getSessionById(id) {
+  if (isOnline()) {
+    return apiFetch(`/sessions/${id}`);
+  } else {
+    const { getSessionById } = await import('../storage/sessions');
+    return getSessionById(Number(id));
+  }
+}
+
+// UPDATE SESSION
 export async function updateSession(id, data) {
-  return offline.updateSession(id, data);
-}
-
-// Delete session
-export async function deleteSession(id) {
-  return offline.deleteSession(id);
+  if (isOnline()) {
+    return apiFetch(`/sessions/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  } else {
+    const { updateSession } = await import('../storage/sessions');
+    return updateSession(Number(id), data);
+  }
 }

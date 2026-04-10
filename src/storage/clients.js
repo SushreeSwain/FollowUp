@@ -27,7 +27,7 @@ export async function addClient({ name, contactInfo = '', info = '' }) {
 /**
  * Get all clients from the database
  */
-export async function getAllClients() {
+export async function getClients() {
   const clients = await db.clients
     .orderBy('createdAt')
     .reverse()
@@ -45,7 +45,7 @@ export async function getClientById(id) {
     throw new Error('Client ID is required');
   }
 
-  const client = await db.clients.get(id);
+  const client = await db.clients.get(Number(id));
   return client;
 }
 
@@ -77,7 +77,7 @@ export async function updateClient(id, updates = {}) {
 
   filteredUpdates.updatedAt = new Date().toISOString();
 
-  await db.clients.update(id, filteredUpdates);
+  await db.clients.update(Number(id), filteredUpdates);
 }
 
 
@@ -90,6 +90,6 @@ export async function deleteClient(id) {
     throw new Error('Client ID is required');
   }
 
-  await db.clients.delete(id);
+  await db.clients.delete(Number(id));
 }
 

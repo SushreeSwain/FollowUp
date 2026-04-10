@@ -3,7 +3,7 @@ import { db } from './db';
 /**
  * Add a new session for a client
  */
-export async function addSession({ clientId, date, notes = '', title='' }) {
+export async function addSession({ clientId, date, notes = '', title = '' }) {
   if (!clientId) {
     throw new Error('clientId is required');
   }
@@ -15,12 +15,12 @@ export async function addSession({ clientId, date, notes = '', title='' }) {
   const now = new Date().toISOString();
 
   const session = {
-    clientId,
+    clientId: Number(clientId), // ✅ FIX
     date,
     title,
     notes,
     createdAt: now,
-    updatedAt: now
+    updatedAt: now,
   };
 
   const id = await db.sessions.add(session);
@@ -35,14 +35,12 @@ export async function getSessionsByClientId(clientId) {
     throw new Error('clientId is required');
   }
 
-  const sessions = await db.sessions
+  return db.sessions
     .where('clientId')
-    .equals(clientId)
+    .equals(Number(clientId)) // ✅ FIX
+    .reverse() // newest first
     .sortBy('date');
-
-  return sessions; // newest first
 }
-
 
 /**
  * Get a single session by ID
@@ -52,10 +50,8 @@ export async function getSessionById(id) {
     throw new Error('session id is required');
   }
 
-  const session = await db.sessions.get(id);
-  return session;
+  return db.sessions.get(Number(id)); // ✅ FIX
 }
-
 
 /**
  * Update an existing session
@@ -80,7 +76,7 @@ export async function updateSession(id, updates = {}) {
 
   filteredUpdates.updatedAt = new Date().toISOString();
 
-  await db.sessions.update(id, filteredUpdates);
+  await db.sessions.update(Number(id), filteredUpdates); // ✅ FIX
 }
 
 /**
@@ -91,9 +87,5 @@ export async function deleteSession(id) {
     throw new Error('session id is required');
   }
 
-  await db.sessions.delete(id);
+  await db.sessions.delete(Number(id)); // ✅ FIX
 }
-
-
-
-

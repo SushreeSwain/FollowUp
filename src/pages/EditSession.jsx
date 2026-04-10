@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { apiFetch } from '../services/api';
+import { getClientById } from '../services/clientService';
+import { getSessionById, updateSession } from '../services/sessionService';
 import { formatDate } from '../utils/formatDate';
 
 import { Button } from '@/components/ui/button';
@@ -51,8 +52,8 @@ function EditSession() {
     async function loadData() {
       try {
         const [clientData, sessionData] = await Promise.all([
-          apiFetch(`/clients/${clientId}`),
-          apiFetch(`/sessions/${sessionId}`),
+          getClientById(clientId),
+          getSessionById(sessionId),
         ]);
 
         // safety check
@@ -62,11 +63,7 @@ function EditSession() {
         }
 
         setClient(clientData);
-
-        // convert yyyy-mm-dd → Date
-        //const [y, m, d] = sessionData.date.split('-');
         setDate(new Date(sessionData.date));
-
         setTitle(sessionData.title || '');
         setNotes(sessionData.notes || '');
       } catch (err) {
@@ -91,13 +88,10 @@ function EditSession() {
     const dd = String(date.getDate()).padStart(2, '0');
 
     try {
-      await apiFetch(`/sessions/${sessionId}`, {
-        method: 'PUT',
-        body: JSON.stringify({
-          date: `${yyyy}-${mm}-${dd}`,
-          title: title.trim(),
-          notes: notes.trim(),
-        }),
+      await updateSession(sessionId, {
+        date: `${yyyy}-${mm}-${dd}`,
+        title: title.trim(),
+        notes: notes.trim(),
       });
 
       navigate(`/clients/${clientId}`);
@@ -114,7 +108,6 @@ function EditSession() {
   return (
     <div className="min-h-screen bg-muted flex items-center justify-center p-6">
       <Card className="w-full max-w-lg">
-        {/* HEADER */}
         <CardHeader className="space-y-4">
           <div className="flex items-center gap-4">
             <Avatar className="h-12 w-12">
@@ -134,7 +127,6 @@ function EditSession() {
           </div>
         </CardHeader>
 
-        {/* FORM */}
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-5">
             {error && (
@@ -143,7 +135,6 @@ function EditSession() {
               </p>
             )}
 
-            {/* Date */}
             <div className="space-y-1">
               <Label>Session date</Label>
 
@@ -168,19 +159,14 @@ function EditSession() {
               </Popover>
             </div>
 
-            {/* Title */}
             <div className="space-y-1">
-              <Label>
-                Session title{' '}
-                <span className="text-muted-foreground">(optional)</span>
-              </Label>
+              <Label>Session title</Label>
               <Input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
               />
             </div>
 
-            {/* Notes */}
             <div className="space-y-1">
               <Label>Notes</Label>
               <Textarea
@@ -191,7 +177,6 @@ function EditSession() {
             </div>
           </CardContent>
 
-          {/* ACTIONS */}
           <CardFooter className="flex justify-between">
             <Button
               type="button"

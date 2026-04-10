@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { apiFetch } from '../services/api';
 import { formatDate } from '../utils/formatDate';
+import { getClientById } from '../services/clientService';
+import { getSessionsByClientId } from '../services/sessionService';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -38,12 +39,12 @@ function SessionDetail() {
     async function loadData() {
       try {
         const [clientData, sessionData] = await Promise.all([
-          apiFetch(`/clients/${clientId}`),
-          apiFetch(`/sessions/${sessionId}`),
+          getClientById(clientId),
+          getSessionById(sessionId),
         ]);
 
         // optional safety check
-        if (sessionData.clientId !== clientId) {
+        if (sessionData.clientId.toString() !== clientId) {
           navigate('/not-found');
           return;
         }

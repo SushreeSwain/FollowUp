@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiFetch } from '../services/api';
+import { getClients } from '../services/clientService';
 import { Skeleton } from '@/components/ui/skeleton';
 
 import {
@@ -34,7 +34,7 @@ function Home() {
   useEffect(() => {
     async function loadClients() {
       try {
-        const data = await apiFetch('/clients');
+        const data = await getClients();
         console.log("CLIENT DATA:", data); // ✅ debug
         setClients(data);
       } catch (err) {

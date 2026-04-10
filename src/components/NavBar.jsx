@@ -52,7 +52,11 @@ function Navbar() {
         {/* LEFT (LOGO → LANDING) */}
         <div
           className="flex items-center gap-3 cursor-pointer"
-          onClick={() => navigate('/')}
+          onClick={() => {
+            if (mode === 'offline') {
+              navigate('/');
+            }
+          }}
         >
           <img src={logo} alt="FollowUp logo" className="h-7 w-7" />
           <span className="text-xl font-semibold tracking-tight">

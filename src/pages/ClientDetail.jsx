@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { apiFetch } from '../services/api';
 import { formatDate } from '../utils/formatDate';
+import { getClientById, deleteClient } from '../services/clientService';
+import { getSessionsByClientId } from '../services/sessionService';
 
 import {
   Accordion,
@@ -34,7 +35,6 @@ import {
   AvatarImage,
 } from '@/components/ui/avatar';
 
-
 function getInitials(name = '') {
   return name
     .split(' ')
@@ -56,24 +56,23 @@ function ClientDetail() {
   const [visibleCount, setVisibleCount] = useState(3);
 
   useEffect(() => {
-  async function loadData() {
-    try {
-      console.log("Fetching client:", id);
+    async function loadData() {
+      try {
+        const clientData = await getClientById(Number(id));
+        const sessionData = await getSessionsByClientId(Number(id));
 
-      const clientData = await apiFetch(`/clients/${id}`);
-
-      const sessionData = await apiFetch(`/sessions/client/${id}`);
-
-      setClient(clientData);
-      setSessions(sessionData);
-    } catch (err) {
-      console.error("ERROR:", err);
-      navigate('/clients');
+        setClient(clientData);
+        setSessions(Array.isArray(sessionData) ? sessionData : []);
+      } catch (err) {
+        console.error("ERROR:", err);
+        navigate('/clients');
+      }
     }
-  }
 
-  loadData();
-}, [id, navigate]);
+    loadData();
+  }, [id, navigate]);
+
+  const clientId = client?._id || client?.id;
 
   const filteredSessions = searchDate
     ? sessions.filter((session) => session.date === searchDate)
@@ -92,28 +91,29 @@ function ClientDetail() {
   return (
     <div className="min-h-screen bg-muted p-6">
       <Card className="mx-auto max-w-3xl bg-card/90 border border-border shadow-sm">
+
         {/* HEADER */}
         <CardHeader className="flex flex-row items-center justify-between gap-4">
-            <div>
-                <CardTitle className="text-2xl font-semibold">
-                    {client.name}
-                </CardTitle>
-                <CardDescription>
-                    Client details and session history
-                </CardDescription>
-            </div>
+          <div>
+            <CardTitle className="text-2xl font-semibold">
+              {client.name}
+            </CardTitle>
+            <CardDescription>
+              Client details and session history
+            </CardDescription>
+          </div>
 
-            <Avatar className="h-24 w-24">
-                <AvatarImage src={client.avatar || ''} />
-                <AvatarFallback className="text-xl font-medium">
-                    {getInitials(client.name)}
-                </AvatarFallback>
-            </Avatar>
+          <Avatar className="h-24 w-24">
+            <AvatarImage src={client.avatar || ''} />
+            <AvatarFallback className="text-xl font-medium">
+              {getInitials(client.name)}
+            </AvatarFallback>
+          </Avatar>
         </CardHeader>
-
 
         {/* CONTENT */}
         <CardContent className="space-y-6">
+
           {/* Client Info */}
           <div className="space-y-4">
             <div>
@@ -142,7 +142,7 @@ function ClientDetail() {
             <Button
               size="sm"
               onClick={() =>
-                navigate(`/clients/${client._id}/sessions/new`)
+                navigate(`/clients/${clientId}/sessions/new`)
               }
             >
               Add Session
@@ -150,7 +150,7 @@ function ClientDetail() {
           </div>
 
           {/* Calendar Filter */}
-          <div className="rounded-lg bg-muted p-4 hover:bg-muted/80 transition-colors">
+          <div className="rounded-lg bg-muted p-4">
             <label className="block mb-2 text-sm font-medium text-muted-foreground">
               Filter by date
             </label>
@@ -158,15 +158,12 @@ function ClientDetail() {
             <div className="flex gap-2">
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="flex-1 justify-start text-left font-normal"
-                  >
+                  <Button variant="outline" className="flex-1 justify-start">
                     {searchDate ? formatDate(searchDate) : 'Pick a date'}
                   </Button>
                 </PopoverTrigger>
 
-                <PopoverContent className="w-auto p-0" align="start">
+                <PopoverContent className="w-auto p-0">
                   <Calendar
                     mode="single"
                     selected={calendarDate}
@@ -180,7 +177,6 @@ function ClientDetail() {
                         setSearchDate(`${yyyy}-${mm}-${dd}`);
                       }
                     }}
-                    initialFocus
                   />
                 </PopoverContent>
               </Popover>
@@ -200,64 +196,66 @@ function ClientDetail() {
             </div>
           </div>
 
-          {/* Sessions Box */}
-          <div className="rounded-lg bg-muted p-4 hover:bg-muted/80">
+          {/* Sessions */}
+          <div className="rounded-lg bg-muted p-4">
             {visibleSessions.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 No sessions yet.
               </p>
             ) : (
               <Accordion type="single" collapsible className="space-y-2">
-                {visibleSessions.map((session) => (
-                  <AccordionItem
-                    key={session._id}
-                    value={String(session._id)}
-                    className="rounded-md border border-border bg-background px-3"
-                  >
-                    <AccordionTrigger className="py-3 hover:no-underline">
-                      <div className="flex flex-col text-left">
-                        <span className="font-medium">
-                          {formatDate(session.date)}
-                        </span>
-                        <span className="text-sm text-muted-foreground">
-                          {session.title || 'Session'}
-                        </span>
-                      </div>
-                    </AccordionTrigger>
+                {visibleSessions.map((session) => {
+                  const sessionId = session._id || session.id;
 
-                    <AccordionContent className="pb-4 text-sm text-muted-foreground">
-                      <p className="whitespace-pre-wrap">
-                        {session.notes || '—'}
-                      </p>
+                  return (
+                    <AccordionItem
+                      key={sessionId}
+                      value={String(sessionId)}
+                      className="rounded-md border border-border bg-background px-3"
+                    >
+                      <AccordionTrigger className="py-3">
+                        <div className="flex flex-col text-left">
+                          <span className="font-medium">
+                            {formatDate(session.date)}
+                          </span>
+                          <span className="text-sm text-muted-foreground">
+                            {session.title || 'Session'}
+                          </span>
+                        </div>
+                      </AccordionTrigger>
 
-                      <div className="mt-4 flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() =>
-                            navigate(
-                              `/clients/${client._id}/sessions/${session._id}/edit`
-                            )
-                          }
-                        >
-                          Edit session
-                        </Button>
+                      <AccordionContent className="pb-4 text-sm">
+                        <p>{session.notes || '—'}</p>
 
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          onClick={() =>
-                            navigate(
-                              `/clients/${client._id}/sessions/${session._id}`
-                            )
-                          }
-                        >
-                          Open session
-                        </Button>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
+                        <div className="mt-4 flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() =>
+                              navigate(
+                                `/clients/${clientId}/sessions/${sessionId}/edit`
+                              )
+                            }
+                          >
+                            Edit session
+                          </Button>
+
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            onClick={() =>
+                              navigate(
+                                `/clients/${clientId}/sessions/${sessionId}`
+                              )
+                            }
+                          >
+                            Open session
+                          </Button>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  );
+                })}
               </Accordion>
             )}
 
@@ -283,6 +281,7 @@ function ClientDetail() {
               </div>
             )}
           </div>
+
         </CardContent>
 
         {/* FOOTER */}
@@ -298,7 +297,7 @@ function ClientDetail() {
             <Button
               variant="outline"
               onClick={() =>
-                navigate(`/clients/${client._id}/edit`)
+                navigate(`/clients/${clientId}/edit`)
               }
             >
               Edit Client
@@ -312,7 +311,7 @@ function ClientDetail() {
                 );
                 if (!confirmDelete) return;
 
-                await deleteClient(client._id);
+                await deleteClient(clientId);
                 navigate('/clients');
               }}
             >
@@ -320,6 +319,7 @@ function ClientDetail() {
             </Button>
           </div>
         </CardFooter>
+
       </Card>
     </div>
   );

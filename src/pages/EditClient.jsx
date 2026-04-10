@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { apiFetch } from '../services/api';
+import { getClientById, updateClient } from '../services/clientService';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -27,7 +27,12 @@ function EditClient() {
   useEffect(() => {
     async function loadClient() {
       try {
-        const client = await apiFetch(`/clients/${id}`);
+        const client = await getClientById(id);
+
+        if (!client) {
+          navigate('/not-found');
+          return;
+        }
 
         setName(client.name || '');
         setContactInfo(client.contactInfo || '');
@@ -50,13 +55,10 @@ function EditClient() {
     }
 
     try {
-      await apiFetch(`/clients/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify({
-          name: name.trim(),
-          contactInfo: contactInfo.trim(),
-          info: info.trim(),
-        }),
+      await updateClient(id, {
+        name: name.trim(),
+        contactInfo: contactInfo.trim(),
+        info: info.trim(),
       });
 
       navigate(`/clients/${id}`);

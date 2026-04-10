@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiFetch } from '../services/api';
+import { addClient } from '../services/clientService';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -32,13 +32,10 @@ function AddClient() {
     }
 
     try {
-      await apiFetch('/clients', {
-        method: 'POST',
-        body: JSON.stringify({
-          name: name.trim(),
-          contactInfo: contactInfo.trim(),
-          info: info.trim(),
-        }),
+      await addClient({
+        name: name.trim(),
+        contactInfo: contactInfo.trim(),
+        info: info.trim(),
       });
 
       navigate('/clients');
