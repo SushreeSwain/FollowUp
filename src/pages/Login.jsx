@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
@@ -21,10 +20,13 @@ function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
+  // 🔥 REDIRECT IF ALREADY LOGGED IN
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if(token){
-        navigate('/');
+    const mode = localStorage.getItem('mode');
+
+    if (mode === 'online' && token) {
+      navigate('/app');
     }
   }, [navigate]);
 
@@ -41,21 +43,19 @@ function Login() {
       });
 
       const data = await res.json();
-      console.log("LOGIN RESPONSE:", data);
 
       if (!res.ok) {
         setError(data.error || 'Login failed');
         return;
       }
 
+      // 🔥 SAVE AUTH DATA
       localStorage.setItem('token', data.token);
-
-      console.log("SAVING USER:", data.user); // 👈 ADD THIS
-
       localStorage.setItem('user', JSON.stringify(data.user));
+      localStorage.setItem('mode', 'online'); // VERY IMPORTANT
 
-      console.log("STORED USER:", localStorage.getItem('user')); // 👈 ADD THIS
-      navigate('/');
+      // 🔥 GO TO APP (NOT LANDING)
+      navigate('/app');
 
     } catch (err) {
       setError('Something went wrong');

@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import { Navigate } from 'react-router-dom';
 
+import Landing from './pages/Landing';
 import Home from './pages/Home';
 import ClientList from './pages/ClientList';
 import AddClient from './pages/AddClient';
@@ -20,73 +21,105 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
-    <Layout>
-      <Routes>
+    <Routes>
 
-        {/* PUBLIC ROUTES */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+      {/* 🌍 PUBLIC (NO NAVBAR) */}
+      <Route path="/" element={<Landing />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
 
-        {/* PROTECTED ROUTES */}
-        <Route path="/" element={
-          <ProtectedRoute><Home /></ProtectedRoute>
-        } />
+      {/* 🔒 APP (WITH NAVBAR) */}
+      <Route path="/app" element={
+        <ProtectedRoute>
+          <Layout>
+            <Home />
+          </Layout>
+        </ProtectedRoute>
+      } />
 
-        <Route path="/clients" element={
-          <ProtectedRoute><ClientList /></ProtectedRoute>
-        } />
+      <Route path="/clients" element={
+        <ProtectedRoute>
+          <Layout>
+            <ClientList />
+          </Layout>
+        </ProtectedRoute>
+      } />
 
-        <Route path="/clients/new" element={
-          <ProtectedRoute><AddClient /></ProtectedRoute>
-        } />
+      <Route path="/clients/new" element={
+        <ProtectedRoute>
+          <Layout>
+            <AddClient />
+          </Layout>
+        </ProtectedRoute>
+      } />
 
-        <Route path="/clients/:id" element={
-          <ProtectedRoute><ClientDetail /></ProtectedRoute>
-        } />
+      <Route path="/clients/:id" element={
+        <ProtectedRoute>
+          <Layout>
+            <ClientDetail />
+          </Layout>
+        </ProtectedRoute>
+      } />
 
-        <Route path="/clients/:id/edit" element={
-          <ProtectedRoute><EditClient /></ProtectedRoute>
-        } />
+      <Route path="/clients/:id/edit" element={
+        <ProtectedRoute>
+          <Layout>
+            <EditClient />
+          </Layout>
+        </ProtectedRoute>
+      } />
 
-        <Route path="/clients/:id/sessions" element={
-          <ProtectedRoute><Sessions /></ProtectedRoute>
-        } />
+      <Route path="/clients/:id/sessions" element={
+        <ProtectedRoute>
+          <Layout>
+            <Sessions />
+          </Layout>
+        </ProtectedRoute>
+      } />
 
-        <Route path="/clients/:id/sessions/new" element={
-          <ProtectedRoute><AddSession /></ProtectedRoute>
-        } />
+      <Route path="/clients/:id/sessions/new" element={
+        <ProtectedRoute>
+          <Layout>
+            <AddSession />
+          </Layout>
+        </ProtectedRoute>
+      } />
 
-        <Route path="/clients/:clientId/sessions/:sessionId" element={
-          <ProtectedRoute><SessionDetail /></ProtectedRoute>
-        } />
+      <Route path="/clients/:clientId/sessions/:sessionId" element={
+        <ProtectedRoute>
+          <Layout>
+            <SessionDetail />
+          </Layout>
+        </ProtectedRoute>
+      } />
 
-        <Route path="/clients/:clientId/sessions/:sessionId/edit" element={
-          <ProtectedRoute><EditSession /></ProtectedRoute>
-        } />
+      <Route path="/clients/:clientId/sessions/:sessionId/edit" element={
+        <ProtectedRoute>
+          <Layout>
+            <EditSession />
+          </Layout>
+        </ProtectedRoute>
+      } />
 
-        <Route path="/clients/:id/export" element={
-          <ProtectedRoute><ExportClient /></ProtectedRoute>
-        } />
+      <Route path="/clients/:id/export" element={
+        <ProtectedRoute>
+          <Layout>
+            <ExportClient />
+          </Layout>
+        </ProtectedRoute>
+      } />
 
-        <Route path="/clients/:id/delete" element={
-          <ProtectedRoute><DeleteConfirmation /></ProtectedRoute>
-        } />
+      <Route path="/clients/:id/delete" element={
+        <ProtectedRoute>
+          <Layout>
+            <DeleteConfirmation />
+          </Layout>
+        </ProtectedRoute>
+      } />
 
-        {/* fallback */}
-        <Route path="/not-found" element={<NotFound />} />
-        <Route
-          path="*"
-          element={
-            localStorage.getItem('token') ? (
-              <NotFound />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
+      <Route path="*" element={<NotFound />} />
 
-      </Routes>
-    </Layout>
+    </Routes>
   );
 }
 
