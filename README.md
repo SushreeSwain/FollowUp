@@ -1,16 +1,95 @@
-# React + Vite
+# FollowUp
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A full-stack client and session management app with **online + offline support**.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## React Compiler
+- JWT Authentication (Login / Register)
+- Online Mode (MongoDB + Express API)
+- Offline Mode (IndexedDB)
+- Seamless switching between online & offline
+- Client management (CRUD)
+- Session tracking with notes and dates
+- Clean UI using shadcn/ui
+- Protected routes
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## Architecture
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+This app uses a **service layer abstraction**:
+UI --> Service Layer --> API/IndexedDB
+
+This allows:
+- switching between online & offline modes
+- clean separation of logic
+
+---
+
+## Tech Stack
+
+### Frontend
+- React
+- React Router
+- shadcn/ui
+- Tailwind CSS
+
+### Backend
+- Node.js
+- Express.js
+- MongoDB Atlas
+- JWT Authentication
+
+### Offline Storage
+- IndexedDB (Dexie)
+
+---
+
+## Modes
+
+### Online Mode
+- Data stored in MongoDB
+- Requires login
+- User-specific data
+
+### Offline Mode
+- Data stored in browser (IndexedDB)
+- No login required
+- Fully local
+
+---
+
+## Challenges Faced
+
+- Managing dual data sources (API + IndexedDB)
+- Handling `_id` vs `id` differences
+- Service layer abstraction
+- Route consistency across modes
+- Debugging async UI + navigation issues
+
+---
+
+## Status
+
+✅ Core features complete  
+✅ Online + Offline working  
+Future improvements planned  
+
+---
+
+## License
+
+This project is proprietary.
+
+Unauthorized use, copying, or modification is prohibited.
+
+---
+
+## Author
+
+Built by **Sushree S Swain**
+
+---
+
