@@ -1,4 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 
 import Home from './pages/Home';
 import ClientList from './pages/ClientList';
@@ -73,7 +74,16 @@ function App() {
 
         {/* fallback */}
         <Route path="/not-found" element={<NotFound />} />
-        <Route path="*" element={<NotFound />} />
+        <Route
+          path="*"
+          element={
+            localStorage.getItem('token') ? (
+              <NotFound />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
 
       </Routes>
     </Layout>
