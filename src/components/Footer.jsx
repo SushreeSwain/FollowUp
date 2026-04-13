@@ -8,11 +8,11 @@ function Footer() {
 
                 <span className="flex items-center gap-2">
                     <span className="h-2 w-2 rounded-full bg-muted-foreground" />
-                    Offline mode
+                    Offline and Online compatability
                 </span>
 
                 <span>
-                    MIT License · Thank you for using FollowUp · Contact us
+                    Thank you for using FollowUp · Contact us
                 </span>
             </div>
 

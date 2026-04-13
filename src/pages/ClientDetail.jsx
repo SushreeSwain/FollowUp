@@ -312,7 +312,8 @@ function ClientDetail() {
                 if (!confirmDelete) return;
 
                 await deleteClient(clientId);
-                navigate('/clients');
+                navigate('/clients', {replace: true});
+                window.location.reload();
               }}
             >
               Delete Client
