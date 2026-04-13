@@ -35,6 +35,19 @@ import {
   AvatarImage,
 } from '@/components/ui/avatar';
 
+// 🔥 NEW IMPORT
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from '@/components/ui/alert-dialog';
+
 function getInitials(name = '') {
   return name
     .split(' ')
@@ -303,21 +316,42 @@ function ClientDetail() {
               Edit Client
             </Button>
 
-            <Button
-              variant="destructive"
-              onClick={async () => {
-                const confirmDelete = window.confirm(
-                  'Are you sure you want to delete this client?'
-                );
-                if (!confirmDelete) return;
+            {/* 🔥 NEW DELETE DIALOG */}
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive">
+                  Delete Client
+                </Button>
+              </AlertDialogTrigger>
 
-                await deleteClient(clientId);
-                navigate('/clients', {replace: true});
-                window.location.reload();
-              }}
-            >
-              Delete Client
-            </Button>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    Delete Client?
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete this client and all related sessions.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+
+                <AlertDialogFooter>
+                  <AlertDialogCancel>
+                    Cancel
+                  </AlertDialogCancel>
+
+                  <AlertDialogAction
+                    onClick={async () => {
+                      await deleteClient(clientId);
+                      navigate('/clients', { replace: true });
+                      window.location.reload();
+                    }}
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
           </div>
         </CardFooter>
 
