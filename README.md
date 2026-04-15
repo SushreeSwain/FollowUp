@@ -1,7 +1,6 @@
 # FollowUp
 
 A full-stack client and session management app with **online + offline support**.
-FollowUp is live. Visit follow-mojig4vbr-sushreeswains-projects.vercel.app
 ---
 
 ## Features
