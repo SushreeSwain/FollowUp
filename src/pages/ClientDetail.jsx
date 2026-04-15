@@ -113,7 +113,7 @@ function ClientDetail() {
             <CardTitle className="text-2xl font-semibold">
               {client.name}
               {client.highPriority && (
-                <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded">
+                <span className="ml-2 relative -top-[2px] left-[1px] text-xs px-2 py-0.5 rounded-full bg-gradient-to-r from-red-400 to-red-500 text-white font-medium shadow-sm">
                   High Priority
                 </span>
               )}
@@ -124,9 +124,10 @@ function ClientDetail() {
             </CardDescription>
 
               {/*  PRIORITY BUTTON */}
-              <div className="mb-4">
+              <div className="flex items-center gap-2 mt-2">
                 <Button
                   size="sm"
+                  className="h-8 px-3 text-sm rounded-md"
                   variant={client.highPriority ? "destructive" : "outline"}
                   disabled={updatingPriority}
                   onClick={async () => {
@@ -135,19 +136,14 @@ function ClientDetail() {
 
                       const updated = !client.highPriority;
 
-                      console.log("🔥 UPDATED VALUE:", updated);
-                      console.log("🔥 CLIENT ID:", clientId);
-
                       await updateClient(clientId, {
                         highPriority: updated,
                       });
 
-                      console.log("🔥 API CALLED");
-
-                      setClient({
-                        ...client,
+                      setClient(prev => ({
+                        ...prev,
                         highPriority: updated,
-                      });
+                      }));
 
                     } catch (err) {
                       console.error("Priority update failed:", err);
