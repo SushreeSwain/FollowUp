@@ -78,14 +78,25 @@ router.post('/', authMiddleware, async (req, res) => {
 // UPDATE client
 router.put('/:id', authMiddleware, async (req, res) => {
   try {
+    console.log("UPDATE BODY:", req.body); 
+
     const updated = await Client.findOneAndUpdate(
       {
         _id: req.params.id,
         userId: req.user.userId,
       },
-      req.body,
-      { returnDocument: 'after' }
+      {
+        $set: req.body,
+      },
+      {
+        new: true,          
+        runValidators: true 
+      }
     );
+
+    if (!updated) {
+      return res.status(404).json({ error: 'Client not found' });
+    }
 
     res.json(updated);
   } catch (err) {

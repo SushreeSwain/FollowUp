@@ -11,6 +11,10 @@ const clientSchema = new mongoose.Schema({
   info: {
     type: String,
   },
+  highPriority:{
+    type : Boolean,
+    default: false,
+  },
   userId: {
   type: mongoose.Schema.Types.ObjectId,
   ref: 'User',

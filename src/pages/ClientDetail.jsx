@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { formatDate } from '../utils/formatDate';
 import { getClientById, deleteClient } from '../services/clientService';
 import { getSessionsByClientId } from '../services/sessionService';
+import { updateClient } from '../services/clientService';
 
 import {
   Accordion,
@@ -67,6 +68,7 @@ function ClientDetail() {
   const [searchDate, setSearchDate] = useState('');
   const [calendarDate, setCalendarDate] = useState(null);
   const [visibleCount, setVisibleCount] = useState(3);
+  const [updatingPriority, setUpdatingPriority] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -110,11 +112,54 @@ function ClientDetail() {
           <div>
             <CardTitle className="text-2xl font-semibold">
               {client.name}
+              {client.highPriority && (
+                <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded">
+                  High Priority
+                </span>
+              )}
             </CardTitle>
+
             <CardDescription>
               Client details and session history
             </CardDescription>
-          </div>
+
+              {/*  PRIORITY BUTTON */}
+              <div className="mb-4">
+                <Button
+                  size="sm"
+                  variant={client.highPriority ? "destructive" : "outline"}
+                  disabled={updatingPriority}
+                  onClick={async () => {
+                    try {
+                      setUpdatingPriority(true);
+
+                      const updated = !client.highPriority;
+
+                      console.log("🔥 UPDATED VALUE:", updated);
+                      console.log("🔥 CLIENT ID:", clientId);
+
+                      await updateClient(clientId, {
+                        highPriority: updated,
+                      });
+
+                      console.log("🔥 API CALLED");
+
+                      setClient({
+                        ...client,
+                        highPriority: updated,
+                      });
+
+                    } catch (err) {
+                      console.error("Priority update failed:", err);
+                    } finally {
+                      setUpdatingPriority(false);
+                    }
+                  }}
+                >
+                  {client.highPriority ? "High Priority" : "Mark High Priority"}
+                </Button>
+              </div>
+            </div>
 
           <Avatar className="h-24 w-24">
             <AvatarImage src={client.avatar || ''} />

@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getClients } from '../services/clientService';
+import { getSessionsByClientId } from '../services/sessionService';
 
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Input } from '@/components/ui/input';
 
 import {
   Card,
@@ -32,19 +34,68 @@ function getInitials(name = '') {
     .join('');
 }
 
+// 🔥 NEW FUNCTION (days → months upgrade)
+function getDaysAgo(date) {
+  if (!date) return null;
+
+  const today = new Date();
+  const sessionDate = new Date(date);
+
+  today.setHours(0, 0, 0, 0);
+  sessionDate.setHours(0, 0, 0, 0);
+
+  const diffTime = today - sessionDate;
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) return 'Today';
+  if (diffDays === 1) return '1 day ago';
+
+  // 🔥 MONTH LOGIC
+  if (diffDays >= 30) {
+    const months = Math.floor(diffDays / 30);
+    return months === 1 ? '1 month ago' : `${months} months ago`;
+  }
+
+  return `${diffDays} days ago`;
+}
+
 function ClientList() {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const [visibleCount, setVisibleCount] = useState(10);
-
-  const visibleClients = clients.slice(0, visibleCount);
+  const [search, setSearch] = useState('');
+  const [lastSessions, setLastSessions] = useState({});
 
   useEffect(() => {
     async function loadClients() {
       try {
         const data = await getClients();
-        setClients(Array.isArray(data) ? data : []);
+        const clientList = Array.isArray(data) ? data : [];
+        setClients(clientList);
+
+        // COMPUTE LAST SESSIONS
+        const sessionMap = {};
+
+        for (const client of clientList) {
+          const id = client._id || client.id;
+
+          try {
+            const sessions = await getSessionsByClientId(id);
+
+            if (sessions.length > 0) {
+              const latest = sessions
+                .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+
+              sessionMap[id] = latest.date;
+            }
+          } catch (err) {
+            console.error('Session fetch error:', err);
+          }
+        }
+
+        setLastSessions(sessionMap);
+
       } catch (err) {
         console.error(err);
       } finally {
@@ -55,16 +106,32 @@ function ClientList() {
     loadClients();
   }, []);
 
+  // FILTER
+  const filteredClients = clients.filter((client) =>
+    client.name?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const visibleClients = filteredClients.slice(0, visibleCount);
+
   return (
     <div className="space-y-6">
 
-      {/* Header */}
-      <div className="flex items-center justify-between">
+      {/* Header + Search */}
+      <div className="flex items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold">Clients</h1>
 
-        <Button onClick={() => navigate('/clients/new')}>
-          + Add Client
-        </Button>
+        <div className="flex items-center gap-3">
+          <Input
+            placeholder="Search clients..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-[220px]"
+          />
+
+          <Button onClick={() => navigate('/clients/new')}>
+            + Add Client
+          </Button>
+        </div>
       </div>
 
       {/* LOADING */}
@@ -80,15 +147,15 @@ function ClientList() {
             </div>
           ))}
         </div>
-      ) : clients.length === 0 ? (
+      ) : filteredClients.length === 0 ? (
 
         <Card className="mx-auto max-w-md text-center">
           <CardHeader>
             <CardTitle className="text-lg">
-              No clients yet
+              No clients found
             </CardTitle>
             <p className="text-sm text-muted-foreground">
-              Add your first client to get started.
+              Try a different search or add a new client.
             </p>
           </CardHeader>
 
@@ -119,12 +186,6 @@ function ClientList() {
                 </Avatar>
               );
             })}
-
-            {clients.length > 5 && (
-              <div className="-ml-2 h-12 w-12 rounded-full bg-muted flex items-center justify-center text-xs text-muted-foreground border border-background">
-                +{clients.length - 5}
-              </div>
-            )}
           </div>
 
           {/* Client list */}
@@ -138,46 +199,47 @@ function ClientList() {
                   value={String(id)}
                   className="rounded-md border border-border bg-card"
                 >
-                  {/* ✅ CLEAN TRIGGER (NO CLICK LOGIC) */}
-                  <AccordionTrigger
-                    className="
-                      justify-start
-                      flex items-center gap-4
-                      p-3
-                      cursor-pointer
-                      transition-all duration-200 ease-out
-                      hover:bg-accent/60
-                      hover:no-underline
-                      hover:-translate-y-[2px]
-                      active:scale-[0.99]
-                    "
-                  >
-                    <div className="flex flex-1 items-center gap-4">
+                  <AccordionTrigger className="flex items-center justify-between p-3 hover:bg-accent/60">
+
+                    <div className="flex items-center gap-4">
                       <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-medium">
                         {getInitials(client.name)}
                       </div>
 
-                      <span className="font-medium">
-                        {client.name}
-                      </span>
+                      <div className="flex flex-col">
+                        <span className="font-medium">
+                          {client.name}
+                        </span>
+
+                        {/* 🏷️ TAGS */}
+                        <div className="flex gap-2 mt-1">
+                          {(client.tags || []).slice(0, 2).map((tag, i) => (
+                            <span
+                              key={i}
+                              className="text-xs bg-muted px-2 py-0.5 rounded"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
                     </div>
+
+                    {/* 🔥 UPDATED LAST SESSION */}
+                    <span className="text-xs text-muted-foreground">
+                      {lastSessions[id]
+                        ? `Last: ${getDaysAgo(lastSessions[id])}`
+                        : 'No sessions'}
+                    </span>
+
                   </AccordionTrigger>
 
-                  {/* ✅ NAVIGATION ONLY HERE */}
                   <AccordionContent className="px-4 pb-4 pt-2">
                     <div
                       onClick={() => navigate(`/clients/${id}`)}
-                      className="
-                        space-y-3
-                        p-3
-                        rounded-md
-                        cursor-pointer
-                        transition-all
-                        hover:bg-accent/60
-                        active:scale-[0.98]
-                      "
+                      className="p-3 rounded-md cursor-pointer hover:bg-accent/60"
                     >
-                      <div className="space-y-2 text-sm text-muted-foreground">
+                      <div className="text-sm text-muted-foreground space-y-2">
                         <div>
                           <span className="font-medium text-foreground">
                             Contact:
@@ -194,7 +256,6 @@ function ClientList() {
                       </div>
                     </div>
 
-                    {/* Button */}
                     <div className="mt-3">
                       <Button
                         size="sm"
@@ -214,9 +275,9 @@ function ClientList() {
           </Accordion>
 
           {/* Pagination */}
-          {clients.length > 10 && (
+          {filteredClients.length > 10 && (
             <div className="pt-4 text-center">
-              {visibleCount < clients.length ? (
+              {visibleCount < filteredClients.length ? (
                 <Button
                   variant="ghost"
                   size="sm"
