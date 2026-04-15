@@ -1,5 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
-
+const BASE_URL = 'https://followup-backend-90z3.onrender.com/api';
 export async function apiFetch(endpoint, options = {}) {
   const token = localStorage.getItem('token');
 
