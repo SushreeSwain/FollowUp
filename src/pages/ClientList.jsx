@@ -206,22 +206,28 @@ function ClientList() {
                         {getInitials(client.name)}
                       </div>
 
-                      <div className="flex flex-col">
-                        <span className="font-medium">
-                          {client.name}
+                      <div className="flex flex-col text-left">
+
+                        {/* NAME + TAG */}
+                        <div className="flex items-center">
+                          <span className="font-medium">{client.name}</span>
+
+                          {client.highPriority && (
+                            <span
+                              className="ml-4 relative -top-[1px] left-[1px] text-xs px-2 py-0.5 rounded-full 
+                              bg-gradient-to-r from-red-400 to-red-500 
+                              text-white font-medium shadow-sm"
+                            >
+                              High Priority
+                            </span>
+                          )}
+                        </div>
+
+                        {/* KEEP YOUR EXISTING TEXT BELOW */}
+                        <span className="text-sm text-muted-foreground">
+                          {client.sessions?.length || 0} sessions
                         </span>
 
-                        {/* 🏷️ TAGS */}
-                        <div className="flex gap-2 mt-1">
-                          {(client.tags || []).slice(0, 2).map((tag, i) => (
-                            <span
-                              key={i}
-                              className="text-xs bg-muted px-2 py-0.5 rounded"
-                            >
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
                       </div>
                     </div>
 
