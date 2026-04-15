@@ -38,6 +38,11 @@ function Register() {
         return;
       }
 
+      setError('');
+      alert("Registered successfully! Please login.");
+
+      navigate('/login');
+
       // 🔥 auto-login after register (best UX)
       const loginRes = await fetch('http://localhost:5001/api/auth/login', {
         method: 'POST',
