@@ -66,13 +66,23 @@ function ClientList() {
   const [visibleCount, setVisibleCount] = useState(10);
   const [search, setSearch] = useState('');
   const [lastSessions, setLastSessions] = useState({});
+  const mode = localStorage.getItem('mode');
 
   useEffect(() => {
     async function loadClients() {
       try {
         const data = await getClients();
         const clientList = Array.isArray(data) ? data : [];
-        setClients(clientList);
+
+        const sortedClients = [...clientList].sort((a, b) => {
+          // Priority first
+          if (a.highPriority && !b.highPriority) return -1;
+          if (!a.highPriority && b.highPriority) return 1;
+
+          //  Then by createdAt (newest first)
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        });
+        setClients(sortedClients);
 
         // COMPUTE LAST SESSIONS
         const sessionMap = {};
@@ -212,7 +222,7 @@ function ClientList() {
                         <div className="flex items-center">
                           <span className="font-medium">{client.name}</span>
 
-                          {client.highPriority && (
+                          {mode === 'online' && client.highPriority && (
                             <span
                               className="ml-4 relative -top-[1px] left-[1px] text-xs px-2 py-0.5 rounded-full 
                               bg-gradient-to-r from-red-400 to-red-500 
@@ -231,7 +241,7 @@ function ClientList() {
                       </div>
                     </div>
 
-                    {/* 🔥 UPDATED LAST SESSION */}
+                    {/* UPDATED LAST SESSION */}
                     <span className="text-xs text-muted-foreground">
                       {lastSessions[id]
                         ? `Last: ${getDaysAgo(lastSessions[id])}`

@@ -69,6 +69,7 @@ function ClientDetail() {
   const [calendarDate, setCalendarDate] = useState(null);
   const [visibleCount, setVisibleCount] = useState(3);
   const [updatingPriority, setUpdatingPriority] = useState(false);
+  const mode = localStorage.getItem('mode');
 
   useEffect(() => {
     async function loadData() {
@@ -124,37 +125,39 @@ function ClientDetail() {
             </CardDescription>
 
               {/*  PRIORITY BUTTON */}
-              <div className="flex items-center gap-2 mt-2">
-                <Button
-                  size="sm"
-                  className="h-8 px-3 text-sm rounded-md"
-                  variant={client.highPriority ? "destructive" : "outline"}
-                  disabled={updatingPriority}
-                  onClick={async () => {
-                    try {
-                      setUpdatingPriority(true);
+              {mode === 'online' && (
+                <div className="flex items-center gap-2 mt-2">
+                  <Button
+                    size="sm"
+                    className="h-8 px-3 text-sm rounded-md"
+                    variant={client.highPriority ? "destructive" : "outline"}
+                    disabled={updatingPriority}
+                    onClick={async () => {
+                      try {
+                        setUpdatingPriority(true);
 
-                      const updated = !client.highPriority;
+                        const updated = !client.highPriority;
 
-                      await updateClient(clientId, {
-                        highPriority: updated,
-                      });
+                        await updateClient(clientId, {
+                          highPriority: updated,
+                        });
 
-                      setClient(prev => ({
-                        ...prev,
-                        highPriority: updated,
-                      }));
+                        setClient(prev => ({
+                          ...prev,
+                          highPriority: updated,
+                        }));
 
-                    } catch (err) {
-                      console.error("Priority update failed:", err);
-                    } finally {
-                      setUpdatingPriority(false);
-                    }
-                  }}
-                >
-                  {client.highPriority ? "High Priority" : "Mark High Priority"}
-                </Button>
-              </div>
+                      } catch (err) {
+                        console.error("Priority update failed:", err);
+                      } finally {
+                        setUpdatingPriority(false);
+                      }
+                    }}
+                  >
+                    {client.highPriority ? "High Priority" : "Mark High Priority"}
+                  </Button>
+                </div>
+              )}
             </div>
 
           <Avatar className="h-24 w-24">
