@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Eye, EyeOff } from "lucide-react";
 
 import { Button } from '@/components/ui/button';
 import {
@@ -13,6 +14,14 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function isValidPassword(password) {
+  return /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/.test(password);
+}
+
 function Register() {
   const navigate = useNavigate();
 
@@ -20,9 +29,25 @@ function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   async function handleRegister(e) {
     e.preventDefault();
+
+    if (!name.trim()) {
+        setError('Name is required');
+        return;
+    }
+
+    if (!isValidEmail(email)) {
+        setError('Enter a valid email address');
+        return;
+    }
+
+    if (!isValidPassword(password)) {
+        setError('Password must be at least 6 characters and include a number');
+        return;
+    }
 
     try {
       const res = await fetch('https://followup-backend-90z3.onrender.com/api/auth/register', {
@@ -43,12 +68,9 @@ function Register() {
 
       navigate('/login');
 
-      // 🔥 auto-login after register (best UX)
-      const loginRes = await fetch('http://localhost:5001/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+      // auto-login after register (best UX)
+      alert("Registered successfully! Please login.");
+      navigate('/login');
 
       const loginData = await loginRes.json();
 
@@ -92,14 +114,23 @@ function Register() {
               />
             </div>
 
-            <div>
-              <Label>Password</Label>
-              <Input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+            <div className="relative">
+                <Label>Password</Label>
+
+                <Input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                />
+
+                <button
+                    type="button"
+                    onClick={() => setShowPassword(prev => !prev)}
+                    className="absolute right-3 top-8 text-muted-foreground hover:text-foreground"
+                >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
             </div>
 
             {error && (
