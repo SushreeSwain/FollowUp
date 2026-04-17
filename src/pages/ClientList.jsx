@@ -34,7 +34,7 @@ function getInitials(name = '') {
     .join('');
 }
 
-// 🔥 NEW FUNCTION (days → months upgrade)
+//  NEW FUNCTION (days → months upgrade)
 function getDaysAgo(date) {
   if (!date) return null;
 
@@ -47,10 +47,22 @@ function getDaysAgo(date) {
   const diffTime = today - sessionDate;
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
+  //future days
+  if(diffDays<0){
+    const futureDays = Math.abs(diffDays);
+
+    if(futureDays === 1) return 'Tomorrow';
+    if(futureDays < 30) return `In ${futureDays} days`;
+
+    const months = Math.floor(futureDays/30);
+    return months === 1 ? 'In 1 month' : `In ${months} months`;
+  }
+
+  //Past dates
   if (diffDays === 0) return 'Today';
   if (diffDays === 1) return '1 day ago';
 
-  // 🔥 MONTH LOGIC
+  //  MONTH LOGIC
   if (diffDays >= 30) {
     const months = Math.floor(diffDays / 30);
     return months === 1 ? '1 month ago' : `${months} months ago`;
@@ -244,8 +256,8 @@ function ClientList() {
                     {/* UPDATED LAST SESSION */}
                     <span className="text-xs text-muted-foreground">
                       {lastSessions[id]
-                        ? `Last: ${getDaysAgo(lastSessions[id])}`
-                        : 'No sessions'}
+                        ? ` ${getDaysAgo(lastSessions[id])}`
+                        : 'No sessions yet'}
                     </span>
 
                   </AccordionTrigger>
