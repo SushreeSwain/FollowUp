@@ -40,6 +40,8 @@ function Navbar() {
     ...(mode === 'online'
       ? [{ label: 'Sessions', path: '/sessions' }]
       : []),
+
+    { label: 'About', path: '/about' },
   ];
 
   function handleLogout() {

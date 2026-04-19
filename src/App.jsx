@@ -17,6 +17,7 @@ import NotFound from './pages/NotFound';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ProtectedRoute from './components/ProtectedRoute';
+import About from './pages/About';
 
 function App() {
   return (
@@ -114,6 +115,14 @@ function App() {
         <ProtectedRoute>
           <Layout>
             <DeleteConfirmation />
+          </Layout>
+        </ProtectedRoute>
+      } />
+
+      <Route path="/about" element={
+        <ProtectedRoute>
+          <Layout>
+            <About />
           </Layout>
         </ProtectedRoute>
       } />
