@@ -9,7 +9,7 @@ function Navbar() {
   let token = localStorage.getItem('token');
   let mode = localStorage.getItem('mode');
 
-  // 🔥 FIX INVALID STATE (VERY IMPORTANT)
+  // 🔥 FIX INVALID STATE
   if (mode === 'offline' && token) {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -31,10 +31,15 @@ function Navbar() {
     return null;
   }
 
+  // 🔥 NAV ITEMS (SESSIONS ONLY ONLINE)
   const navItems = [
     { label: 'Home', path: '/app' },
     { label: 'Clients', path: '/clients' },
     { label: 'Add Client', path: '/clients/new' },
+
+    ...(mode === 'online'
+      ? [{ label: 'Sessions', path: '/sessions' }]
+      : []),
   ];
 
   function handleLogout() {
@@ -42,19 +47,21 @@ function Navbar() {
     localStorage.removeItem('user');
     localStorage.removeItem('mode');
 
-    navigate('/'); // go to landing
+    navigate('/');
   }
 
   return (
     <header className="border-b border-border bg-gradient-to-b from-[#0f0f10] to-[#18181b] backdrop-blur">
       <nav className="mx-auto flex h-16 max-w-7xl items-center px-6">
 
-        {/* LEFT (LOGO → LANDING) */}
+        {/* 🔥 LEFT (LOGO) */}
         <div
           className="flex items-center gap-3 cursor-pointer"
           onClick={() => {
             if (mode === 'offline') {
               navigate('/');
+            } else {
+              navigate('/app');
             }
           }}
         >
@@ -64,11 +71,11 @@ function Navbar() {
           </span>
         </div>
 
-        {/* CENTER */}
+        {/* 🔥 CENTER NAV */}
         <div className="flex flex-1 justify-center">
           <div className="flex items-center gap-2">
             {navItems.map((item) => {
-              const isActive = location.pathname === item.path;
+              const isActive = location.pathname.startsWith(item.path);
 
               return (
                 <Button
@@ -84,10 +91,10 @@ function Navbar() {
           </div>
         </div>
 
-        {/* RIGHT */}
+        {/* 🔥 RIGHT */}
         <div className="flex items-center gap-3 min-w-[180px] justify-end">
 
-          {/* 👋 Greeting (ONLY ONLINE) */}
+          {/* 👋 Greeting */}
           {mode === 'online' && token && user?.name && (
             <span className="text-sm text-muted-foreground hidden sm:block">
               Hi, {user.name}

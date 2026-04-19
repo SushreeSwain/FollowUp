@@ -1,5 +1,4 @@
 import { Routes, Route } from 'react-router-dom';
-import { Navigate } from 'react-router-dom';
 
 import Landing from './pages/Landing';
 import Home from './pages/Home';
@@ -7,7 +6,7 @@ import ClientList from './pages/ClientList';
 import AddClient from './pages/AddClient';
 import ClientDetail from './pages/ClientDetail';
 import EditClient from './pages/EditClient';
-import Sessions from './pages/Sessions';
+import Sessions from './pages/Sessions'; // ✅ ONLY ONCE
 import ExportClient from './pages/ExportClient';
 import DeleteConfirmation from './pages/DeleteConfirmation';
 import Layout from './components/Layout';
@@ -23,12 +22,12 @@ function App() {
   return (
     <Routes>
 
-      {/* 🌍 PUBLIC (NO NAVBAR) */}
+      {/* PUBLIC */}
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
-      {/* 🔒 APP (WITH NAVBAR) */}
+      {/* APP */}
       <Route path="/app" element={
         <ProtectedRoute>
           <Layout>
@@ -69,14 +68,7 @@ function App() {
         </ProtectedRoute>
       } />
 
-      <Route path="/clients/:id/sessions" element={
-        <ProtectedRoute>
-          <Layout>
-            <Sessions />
-          </Layout>
-        </ProtectedRoute>
-      } />
-
+      {/* CLIENT SESSIONS */}
       <Route path="/clients/:id/sessions/new" element={
         <ProtectedRoute>
           <Layout>
@@ -97,6 +89,15 @@ function App() {
         <ProtectedRoute>
           <Layout>
             <EditSession />
+          </Layout>
+        </ProtectedRoute>
+      } />
+
+      {/* GLOBAL SESSIONS PAGE */}
+      <Route path="/sessions" element={
+        <ProtectedRoute>
+          <Layout>
+            <Sessions /> 
           </Layout>
         </ProtectedRoute>
       } />
