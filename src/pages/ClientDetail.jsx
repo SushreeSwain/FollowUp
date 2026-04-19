@@ -4,6 +4,7 @@ import { formatDate } from '../utils/formatDate';
 import { getClientById, deleteClient } from '../services/clientService';
 import { getSessionsByClientId } from '../services/sessionService';
 import { updateClient } from '../services/clientService';
+import { Skeleton } from '@/components/ui/skeleton';
 
 import {
   Accordion,
@@ -36,7 +37,7 @@ import {
   AvatarImage,
 } from '@/components/ui/avatar';
 
-// 🔥 NEW IMPORT
+//  NEW IMPORT
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -69,6 +70,7 @@ function ClientDetail() {
   const [calendarDate, setCalendarDate] = useState(null);
   const [visibleCount, setVisibleCount] = useState(3);
   const [updatingPriority, setUpdatingPriority] = useState(false);
+  const [loading, setLoading] = useState(true);
   const mode = localStorage.getItem('mode');
 
   useEffect(() => {
@@ -101,7 +103,45 @@ function ClientDetail() {
   const visibleSessions = filteredSessions.slice(0, visibleCount);
 
   if (!client) {
-    return <p>Loading client...</p>;
+    return (
+      <div className="min-h-screen bg-muted p-6 flex items-center justify-center">
+        <Card className="w-full max-w-3xl space-y-6 p-6">
+
+          {/* HEADER SKELETON */}
+          <div className="flex justify-between items-center">
+            <div className="space-y-2">
+              <Skeleton className="h-6 w-40" />
+              <Skeleton className="h-4 w-60" />
+              <Skeleton className="h-8 w-32 mt-2" />
+            </div>
+            <Skeleton className="h-24 w-24 rounded-full" />
+          </div>
+
+          {/* CLIENT INFO */}
+          <div className="space-y-4">
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-4 w-full" />
+
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-4 w-full" />
+          </div>
+
+          {/* SESSIONS HEADER */}
+          <div className="flex justify-between items-center">
+            <Skeleton className="h-5 w-32" />
+            <Skeleton className="h-8 w-28" />
+          </div>
+
+          {/* SESSION CARDS */}
+          <div className="space-y-3">
+            <Skeleton className="h-14 w-full" />
+            <Skeleton className="h-14 w-full" />
+            <Skeleton className="h-14 w-full" />
+          </div>
+
+        </Card>
+      </div>
+    );
   }
 
   return (

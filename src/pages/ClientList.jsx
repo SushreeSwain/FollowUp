@@ -180,12 +180,6 @@ function ClientList() {
               Try a different search or add a new client.
             </p>
           </CardHeader>
-
-          <div className="pb-4">
-            <Button onClick={() => navigate('/clients/new')}>
-              + Add Client
-            </Button>
-          </div>
         </Card>
 
       ) : (

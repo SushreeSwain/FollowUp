@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getClientById, updateClient } from '../services/clientService';
+import { Skeleton } from '@/components/ui/skeleton';
+
 
 import { Button } from '@/components/ui/button';
 import {
@@ -23,6 +25,7 @@ function EditClient() {
   const [contactInfo, setContactInfo] = useState('');
   const [info, setInfo] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadClient() {
@@ -40,6 +43,8 @@ function EditClient() {
       } catch (err) {
         console.error(err);
         navigate('/not-found');
+      } finally {
+        setLoading(false); 
       }
     }
 
@@ -66,6 +71,28 @@ function EditClient() {
       console.error(err);
       setError('Failed to update client');
     }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6">
+        <Card className="w-full max-w-lg space-y-4 p-6">
+
+          <Skeleton className="h-6 w-40" />
+          <Skeleton className="h-4 w-60" />
+
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-24 w-full" />
+
+          <div className="flex justify-between">
+            <Skeleton className="h-10 w-24" />
+            <Skeleton className="h-10 w-28" />
+          </div>
+
+        </Card>
+      </div>
+    );
   }
 
   return (

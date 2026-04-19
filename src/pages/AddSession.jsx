@@ -49,6 +49,7 @@ function AddSession() {
   const [title, setTitle] = useState('');
   const [notes, setNotes] = useState('');
   const [error, setError] = useState('');
+  const [time, setTime] = useState('');
 
   useEffect(() => {
     async function loadClient() {
@@ -67,8 +68,8 @@ function AddSession() {
   async function handleSubmit(e) {
     e.preventDefault();
 
-    if (!date) {
-      setError('Session date is required');
+    if (!date || !time) {
+      setError('Session date and time are required');
       return;
     }
 
@@ -76,9 +77,13 @@ function AddSession() {
     const mm = String(date.getMonth() + 1).padStart(2, '0');
     const dd = String(date.getDate()).padStart(2, '0');
 
+    const dateTime = new Date(
+      `${yyyy}-${mm}-${dd}T${time}`
+    );
+
     await addSession({
       clientId: id,
-      date: `${yyyy}-${mm}-${dd}`,
+      date: dateTime.toISOString(),
       title: title.trim(),
       notes: notes.trim(),
     });
@@ -153,6 +158,69 @@ function AddSession() {
               </Popover>
             </div>
 
+            <div className="space-y-1">
+              <Label>Time</Label>
+
+              <div className="flex gap-2 items-center mt-1">
+                {/* HOURS (1–12) */}
+                <select
+                  className="border rounded-md px-2 py-1 bg-background"
+                  value={(time && ((+time.split(':')[0] % 12) || 12).toString().padStart(2, '0')) || ''}
+                  onChange={(e) => {
+                    const minutes = time.split(':')[1] || '00';
+                    const ampm = time.includes('PM') ? 'PM' : 'AM';
+
+                    let hour = parseInt(e.target.value);
+
+                    if (ampm === 'PM' && hour !== 12) hour += 12;
+                    if (ampm === 'AM' && hour === 12) hour = 0;
+
+                    setTime(`${String(hour).padStart(2, '0')}:${minutes}`);
+                  }}
+                >
+                  <option value="">HH</option>
+                  {Array.from({ length: 12 }, (_, i) => {
+                    const val = String(i + 1).padStart(2, '0');
+                    return <option key={val}>{val}</option>;
+                  })}
+                </select>
+
+                {/* MINUTES */}
+                <select
+                  className="border rounded-md px-2 py-1 bg-background"
+                  value={time.split(':')[1] || ''}
+                  onChange={(e) => {
+                    const hours = time.split(':')[0] || '00';
+                    setTime(`${hours}:${e.target.value}`);
+                  }}
+                >
+                  <option value="">MM</option>
+                  {Array.from({ length: 60 }, (_, i) => {
+                    const val = String(i).padStart(2, '0');
+                    return <option key={val}>{val}</option>;
+                  })}
+                </select>
+
+                {/* AM / PM */}
+                <select
+                  className="border rounded-md px-2 py-1 bg-background"
+                  value={time && parseInt(time.split(':')[0]) >= 12 ? 'PM' : 'AM'}
+                  onChange={(e) => {
+                    let hour = parseInt(time.split(':')[0] || '0');
+
+                    if (e.target.value === 'PM' && hour < 12) hour += 12;
+                    if (e.target.value === 'AM' && hour >= 12) hour -= 12;
+
+                    const minutes = time.split(':')[1] || '00';
+                    setTime(`${String(hour).padStart(2, '0')}:${minutes}`);
+                  }}
+                >
+                  <option>AM</option>
+                  <option>PM</option>
+                </select>
+              </div>
+            </div>
+
             {/* Title */}
             <div className="space-y-1">
               <Label>
@@ -188,7 +256,7 @@ function AddSession() {
               Cancel
             </Button>
 
-            <Button type="submit">
+            <Button type="submit" disabled={!date || !time}>
               Save session
             </Button>
           </CardFooter>
