@@ -4,6 +4,7 @@ import { addSession } from '../services/sessionService';
 import { getClientById } from '../services/clientService';
 //import { addSession } from '../services/api';
 import { formatDate } from '../utils/formatDate';
+import { Skeleton } from '@/components/ui/skeleton';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -50,6 +51,7 @@ function AddSession() {
   const [notes, setNotes] = useState('');
   const [error, setError] = useState('');
   const [time, setTime] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadClient() {
@@ -92,7 +94,50 @@ function AddSession() {
   }
 
   if (!client) {
-    return <p>Loading...</p>;
+    return (
+      <div className="min-h-screen bg-muted flex items-center justify-center p-6">
+        <Card className="w-full max-w-lg space-y-6 p-6">
+
+          {/* HEADER */}
+          <div className="flex items-center gap-4">
+            <Skeleton className="h-12 w-12 rounded-full" />
+            <div className="space-y-2">
+              <Skeleton className="h-5 w-32" />
+              <Skeleton className="h-4 w-48" />
+            </div>
+          </div>
+
+          {/* CLIENT INFO */}
+          <Skeleton className="h-4 w-full" />
+
+          {/* DATE */}
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+
+          {/* TIME */}
+          <div className="flex gap-2">
+            <Skeleton className="h-10 w-20" />
+            <Skeleton className="h-10 w-20" />
+            <Skeleton className="h-10 w-20" />
+          </div>
+
+          {/* TITLE */}
+          <Skeleton className="h-10 w-full" />
+
+          {/* NOTES */}
+          <Skeleton className="h-24 w-full" />
+
+          {/* BUTTONS */}
+          <div className="flex justify-between">
+            <Skeleton className="h-10 w-24" />
+            <Skeleton className="h-10 w-28" />
+          </div>
+
+        </Card>
+      </div>
+    );
   }
 
   return (
