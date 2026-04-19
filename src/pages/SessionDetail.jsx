@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { formatDate } from '../utils/formatDate';
 import { getClientById } from '../services/clientService';
-import { getSessionById } from '../services/sessionService'; // ✅ FIXED IMPORT
-
+import { getSessionById } from '../services/sessionService'; 
+import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
+
 import {
   Card,
   CardHeader,
@@ -61,12 +62,43 @@ function SessionDetail() {
   }, [clientId, sessionId, navigate]);
 
   if (!client || !session) {
-    return <p>Loading...</p>;
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6">
+        <Card className="w-full max-w-lg space-y-4 p-6">
+
+          {/* HEADER */}
+          <div className="flex items-center gap-4">
+            <Skeleton className="h-12 w-12 rounded-full" />
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-3 w-24" />
+            </div>
+          </div>
+
+          {/* TITLE */}
+          <Skeleton className="h-4 w-40" />
+
+          {/* CONTENT */}
+          <div className="space-y-2">
+            <Skeleton className="h-3 w-full" />
+            <Skeleton className="h-3 w-[90%]" />
+            <Skeleton className="h-3 w-[80%]" />
+          </div>
+
+          {/* BUTTONS */}
+          <div className="flex justify-between pt-4">
+            <Skeleton className="h-9 w-28 rounded-md" />
+            <Skeleton className="h-9 w-32 rounded-md" />
+          </div>
+
+        </Card>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-muted flex items-center justify-center p-6">
-      <Card className="w-full max-w-lg">
+    <div className="min-h-screen flex items-center justify-center p-6">
+      <Card className="w-full max-w-lg bg-gradient-to-b from-[#0f0f10] to-[#18181b] border border-white/10 shadow-lg">
 
         {/* HEADER */}
         <CardHeader className="space-y-4">

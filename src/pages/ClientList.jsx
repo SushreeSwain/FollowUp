@@ -213,7 +213,7 @@ function ClientList() {
                 <AccordionItem
                   key={id}
                   value={String(id)}
-                  className="rounded-md border border-border bg-card"
+                  className="rounded-xl overflow-hidden cursor-pointer bg-gradient-to-b from-[#0f0f10] to-[#18181b] border border-white/10 transition-all duration-200 ease-out hover:shadow-lg hover:-translate-y-[2px] active:scale-[0.99]"
                 >
                   <AccordionTrigger className="flex items-center justify-between p-3 hover:bg-accent/60">
 

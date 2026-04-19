@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getClients } from '../services/clientService';
+import { getSessionsByClientId } from '../services/sessionService';
 import { Skeleton } from '@/components/ui/skeleton';
 
 import {
@@ -15,7 +16,6 @@ import {
   AvatarFallback,
 } from '@/components/ui/avatar';
 
-
 function getInitials(name = '') {
   return name
     .split(' ')
@@ -25,33 +25,84 @@ function getInitials(name = '') {
     .join('');
 }
 
+function getSessionStatus(date) {
+  const now = new Date();
+  const sessionTime = new Date(date);
+  const endTime = new Date(sessionTime.getTime() + 3 * 60 * 60 * 1000);
+
+  if (now < sessionTime) return 'upcoming';
+  if (now >= sessionTime && now <= endTime) return 'in-progress';
+  return 'over';
+}
 
 function Home() {
   const [clients, setClients] = useState([]);
+  const [sessions, setSessions] = useState([]);
+  const [clientsMap, setClientsMap] = useState({});
   const [loading, setLoading] = useState(true);
+
   const navigate = useNavigate();
+  const mode = localStorage.getItem('mode');
 
   useEffect(() => {
-    async function loadClients() {
+    async function loadData() {
       try {
-        const data = await getClients();
-        console.log("CLIENT DATA:", data); // ✅ debug
-        setClients(data);
+        const clientsData = await getClients();
+        setClients(clientsData);
+
+        // 🚫 OFFLINE → skip sessions
+        if (mode !== 'online') {
+          setLoading(false);
+          return;
+        }
+
+        const map = {};
+        const allSessions = [];
+
+        for (const client of clientsData) {
+          const id = client._id || client.id;
+          map[id] = client;
+
+          const clientSessions = await getSessionsByClientId(id);
+
+          clientSessions.forEach(s => {
+            allSessions.push({
+              ...s,
+              clientId: id,
+            });
+          });
+        }
+
+        setClientsMap(map);
+        setSessions(allSessions);
+
       } catch (err) {
-        console.error("API ERROR:", err); // ✅ debug
+        console.error("API ERROR:", err);
       } finally {
         setLoading(false);
       }
     }
 
-    loadClients();
+    loadData();
   }, []);
 
+  const highPrioritySessions = sessions
+  .filter(s => {
+    const client = clientsMap[s.clientId];
+    if (!client?.highPriority) return false;
+
+    const status = getSessionStatus(s.date);
+
+    //REMOVE COMPLETED SESSIONS
+    return status !== 'over';
+  })
+  .sort((a, b) => new Date(a.date) - new Date(b.date));
+
   return (
-    <div className="min-h-screen bg-muted p-6">
+    <div className="min-h-screen p-6">
       <div className="mx-auto max-w-5xl space-y-6">
-        
-        {/* Page Title */}
+
+        {/* TITLE */}
         <div>
           <h1 className="text-2xl font-semibold">
             All your stats will appear here!
@@ -61,49 +112,83 @@ function Home() {
           </p>
         </div>
 
-        {/* LOADING STATE */}
+        {/* LOADING */}
         {loading ? (
           <div className="space-y-6">
-            
-            {/* Overview skeleton */}
-            <div className="rounded-lg bg-card p-6 border border-border">
-              <Skeleton className="h-5 w-32 mb-4" />
-              <div className="flex items-center justify-between">
-                <Skeleton className="h-8 w-16" />
-                <div className="flex">
-                  {[...Array(5)].map((_, i) => (
-                    <Skeleton
-                      key={i}
-                      className={`h-10 w-10 rounded-full ${
-                        i !== 0 ? '-ml-2' : ''
-                      }`}
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Recent clients skeleton */}
-            <div className="rounded-lg bg-card p-6 border border-border space-y-3">
-              <Skeleton className="h-5 w-40 mb-2" />
-
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="flex items-center gap-4">
-                  <Skeleton className="h-10 w-10 rounded-full" />
-                  <Skeleton className="h-4 w-40" />
-                </div>
-              ))}
-            </div>
-
+            <Skeleton className="h-32 w-full rounded-lg" />
+            <Skeleton className="h-40 w-full rounded-lg" />
           </div>
         ) : (
           <>
-            {/* REAL UI */}
+            {/* 🔥 ONLINE ONLY */}
+            {mode === 'online' && (
+              <div>
+                <h2 className="text-lg font-semibold mb-3">
+                  High Priority Sessions
+                </h2>
 
-            {/* Overview Card */}
-            <Card
+                {highPrioritySessions.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    No high priority sessions.
+                  </p>
+                ) : (
+                  <div className="flex gap-4 overflow-x-auto pb-2">
+                    {highPrioritySessions.map((session) => {
+                      const client = clientsMap[session.clientId];
+                      const status = getSessionStatus(session.date);
+                      const isActive = status === 'in-progress';
+
+                      return (
+                        <div
+                          key={session._id || session.id}
+                          onClick={() =>
+                            navigate(`/clients/${session.clientId}/sessions/${session._id || session.id}`)
+                          }
+                          className={`min-w-[300px] p-5 rounded-xl border border-white/10 cursor-pointer transition
+                            bg-gradient-to-b from-[#0f0f10] to-[#18181b]
+                            ${isActive 
+                            ? 'border-yellow-400 shadow-lg shadow-yellow-500/20' 
+                            : 'hover:shadow-md hover:-translate-y-[2px]'}
+                            `}
+                        >
+                          <div className="text-lg font-semibold">
+                            {client?.name}
+                          </div>
+
+                          <span className="inline-block mt-1 text-xs px-2 py-0.5 rounded-full bg-gradient-to-r from-red-400 to-red-500 text-white">
+                            High Priority
+                          </span>
+
+                          <div className="text-sm mt-3 text-muted-foreground">
+                            {new Date(session.date).toLocaleString()}
+                          </div>
+
+                          <div
+                            className={`mt-2 text-sm font-medium ${
+                              status === 'upcoming'
+                                ? 'text-green-600'
+                                : status === 'in-progress'
+                                ? 'text-yellow-600'
+                                : 'text-gray-500'
+                            }`}
+                          >
+                            {status === 'upcoming' && 'Upcoming'}
+                            {status === 'in-progress' && 'In Progress'}
+                            {status === 'over' && 'Session Over'}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ORIGINAL UI (UNCHANGED) */}
+
+            <Card 
               onClick={() => navigate('/clients')}
-              className="cursor-pointer transition-all duration-200 ease-out hover:bg-card/60 hover:shadow-md hover:-translate-y-[2px] active:scale-[0.99]"
+              className="cursor-pointer bg-gradient-to-b from-[#0f0f10] to-[#18181b] border border-white/10 transition-all duration-200 ease-out hover:shadow-lg hover:-translate-y-[2px] active:scale-[0.99]"
             >
               <CardHeader>
                 <CardTitle>Overview</CardTitle>
@@ -144,8 +229,7 @@ function Home() {
               </CardContent>
             </Card>
 
-            {/* Recent Clients */}
-            <Card className="cursor-pointer transition-all duration-200 ease-out hover:bg-card/60 hover:shadow-md hover:-translate-y-[2px] active:scale-[0.99]">
+            <Card className="cursor-pointer bg-gradient-to-b from-[#0f0f10] to-[#18181b] border border-white/10 transition-all duration-200 ease-out hover:shadow-lg hover:-translate-y-[2px] active:scale-[0.99]">
               <CardHeader>
                 <CardTitle>Recent Clients</CardTitle>
               </CardHeader>

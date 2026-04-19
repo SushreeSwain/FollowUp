@@ -148,8 +148,8 @@ function EditSession() {
   }
 
   return (
-    <div className="min-h-screen bg-muted flex items-center justify-center p-6">
-      <Card className="w-full max-w-lg">
+    <div className="min-h-screen flex items-center justify-center p-6">
+      <Card className="w-full max-w-lg bg-gradient-to-b from-[#0f0f10] to-[#18181b] border border-white/10 shadow-lg">
         <CardHeader className="space-y-4">
           <div className="flex items-center gap-4">
             <Avatar className="h-12 w-12">

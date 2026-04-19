@@ -23,9 +23,8 @@ function Sessions() {
 
   const [sessions, setSessions] = useState([]);
   const [clientsMap, setClientsMap] = useState({});
-  const [loading, setLoading] = useState(true); // 🔥 NEW
+  const [loading, setLoading] = useState(true); 
   const [tick, setTick] = useState(0);
-
   const mode = localStorage.getItem('mode');
 
   // BLOCK OFFLINE
@@ -74,7 +73,7 @@ function Sessions() {
       } catch (err) {
         console.error("Sessions load error:", err);
       } finally {
-        setLoading(false); // 🔥 IMPORTANT
+        setLoading(false); // IMPORTANT
       }
     }
 
@@ -86,7 +85,7 @@ function Sessions() {
     .filter(s => s.date)
     .sort((a, b) => new Date(a.date) - new Date(b.date));
 
-  // 🔥 SKELETON UI
+  // SKELETON UI
   if (loading) {
     return (
       <div className="min-h-screen p-6">
@@ -130,7 +129,11 @@ function Sessions() {
             return (
               <Card
                 key={session._id || session.id}
-                className="p-4 flex items-center justify-between hover:bg-accent transition cursor-pointer"
+                className="p-4 flex items-center justify-between cursor-pointer 
+                bg-gradient-to-b from-[#0f0f10] to-[#18181b] 
+                border border-white/10 
+                transition-all duration-200 ease-out 
+                hover:shadow-lg hover:-translate-y-[2px] active:scale-[0.99] backdrop-blur"
                 onClick={() =>
                   navigate(`/clients/${session.clientId}/sessions/${session._id || session.id}`)
                 }

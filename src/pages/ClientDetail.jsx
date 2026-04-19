@@ -145,8 +145,8 @@ function ClientDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-muted p-6">
-      <Card className="mx-auto max-w-3xl bg-card/90 border border-border shadow-sm">
+    <div className="min-h-screen p-6">
+      <Card className="cursor-pointer bg-gradient-to-b from-[#0f0f10] to-[#18181b] border border-white/10 transition-all duration-200 ease-out hover:shadow-lg hover:-translate-y-[2px] active:scale-[0.99]">
 
         {/* HEADER */}
         <CardHeader className="flex flex-row items-center justify-between gap-4">

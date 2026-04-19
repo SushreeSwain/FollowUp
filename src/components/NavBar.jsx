@@ -26,12 +26,12 @@ function Navbar() {
     user = null;
   }
 
-  // 🔥 HIDE NAVBAR ON LANDING
+  //  HIDE NAVBAR ON LANDING
   if (location.pathname === '/') {
     return null;
   }
 
-  // 🔥 NAV ITEMS (SESSIONS ONLY ONLINE)
+  //  NAV ITEMS (SESSIONS ONLY ONLINE)
   const navItems = [
     { label: 'Home', path: '/app' },
     { label: 'Clients', path: '/clients' },
@@ -71,11 +71,17 @@ function Navbar() {
           </span>
         </div>
 
-        {/* 🔥 CENTER NAV */}
+        {/*  CENTER NAV */}
         <div className="flex flex-1 justify-center">
           <div className="flex items-center gap-2">
             {navItems.map((item) => {
-              const isActive = location.pathname.startsWith(item.path);
+              const isActive =
+                item.path === '/clients'
+                  ? location.pathname.startsWith('/clients') &&
+                    !location.pathname.startsWith('/clients/new')
+                  : item.path === '/clients/new'
+                  ? location.pathname === '/clients/new'
+                  : location.pathname === item.path;
 
               return (
                 <Button
