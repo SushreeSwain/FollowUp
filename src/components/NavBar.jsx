@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import logo from '../assets/logo.svg';
+import { SidebarTrigger } from '@/components/ui/sidebar';
 
 function Navbar() {
   const location = useLocation();
@@ -98,37 +99,12 @@ function Navbar() {
         </div>
 
         {/* 🔥 RIGHT */}
-        <div className="flex items-center gap-3 min-w-[180px] justify-end">
+        <div className="flex items-center gap-3 justify-end">
 
           {/* 👋 Greeting */}
           {mode === 'online' && token && user?.name && (
-            <span className="text-sm text-muted-foreground hidden sm:block">
+            <span className="hidden text-sm: text-muted-foreground hidden sm:block">
               Hi, {user.name}
-            </span>
-          )}
-
-          {/* 🔐 AUTH */}
-          {mode === 'online' ? (
-            token ? (
-              <Button
-                variant="outline"
-                onClick={handleLogout}
-                className="transition-all hover:scale-[1.03]"
-              >
-                Logout
-              </Button>
-            ) : (
-              <Button
-                variant="outline"
-                onClick={() => navigate('/login')}
-                className="transition-all hover:scale-[1.03]"
-              >
-                Login
-              </Button>
-            )
-          ) : (
-            <span className="text-xs text-muted-foreground">
-              Offline Mode
             </span>
           )}
 

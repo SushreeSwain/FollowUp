@@ -20,26 +20,35 @@ function Layout({ children }) {
   return (
     <SidebarProvider>
 
+      {/* SIDEBAR */}
       <AppSidebar />
 
       <SidebarInset>
 
+        {/* NAVBAR */}
         <NavBar />
 
         {/* TOP BAR */}
         <div className="flex items-center justify-between px-6 pt-4">
-          {showBackButton && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate(-1)}
-            >
-              Back
-            </Button>
-          )}
 
-          {/* SIDEBAR TOGGLE BUTTON */}
-          <SidebarTrigger />
+          {/* LEFT SIDE */}
+          <div className="flex items-center gap-2">
+
+            {/* 🔥 SIDEBAR BUTTON HERE */}
+            <SidebarTrigger className="md:hidden scale-110" />
+
+            {showBackButton && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate(-1)}
+              >
+                Back
+              </Button>
+            )}
+
+          </div>
+
         </div>
 
         {/* MAIN */}

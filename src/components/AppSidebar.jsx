@@ -16,7 +16,7 @@ export default function AppSidebar() {
   const mode = localStorage.getItem('mode');
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="offcanvas">
       <SidebarContent>
 
         {/* MAIN */}
