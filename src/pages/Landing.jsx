@@ -1,124 +1,158 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import logo from '../assets/logo.svg';
 
 function Landing() {
   const navigate = useNavigate();
+  const [mouse, setMouse] = useState({ x: 0, y: 0 });
 
-  // 🔥 CONTROL ENTRY FLOW
   useEffect(() => {
     const mode = localStorage.getItem('mode');
     const token = localStorage.getItem('token');
 
-    // ✅ ONLY auto-enter app if user is ONLINE + LOGGED IN
     if (mode === 'online' && token) {
       navigate('/app');
     }
-
-    // ❌ DO NOT auto-redirect offline
-    // let user stay on landing intentionally
-
   }, [navigate]);
 
-  // 🌐 ONLINE BUTTON
+  // 🔥 mouse tracking (for glow)
+  useEffect(() => {
+    const handleMove = (e) => {
+      setMouse({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener('mousemove', handleMove);
+    return () => window.removeEventListener('mousemove', handleMove);
+  }, []);
+
   function goOnline() {
     localStorage.setItem('mode', 'online');
     navigate('/login');
   }
 
-  // ⚡ OFFLINE BUTTON
   function goOffline() {
     localStorage.setItem('mode', 'offline');
-
-    // clear any online state
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-
     navigate('/app');
   }
 
-  return (
-    <div className="min-h-screen bg-muted p-6">
-      <div className="mx-auto max-w-5xl space-y-10">
+  const cards = [
+    {
+      title: "Track client sessions",
+      desc: "Manage sessions with structured notes and timelines",
+    },
+    {
+      title: "Offline first support",
+      desc: "Work without internet your data stays local",
+    },
+    {
+      title: "Secure online access",
+      desc: "Sync data securely with authentication",
+    },
+    {
+      title: "Minimal and fast",
+      desc: "Clean UI focused on productivity",
+    },
+  ];
 
-        {/* 🔥 TOP BUTTONS */}
+  return (
+    <div className="min-h-screen bg-[#0f0f10] text-white p-6 relative overflow-hidden">
+
+      {/* 🔥 CURSOR GLOW */}
+      <div
+        className="pointer-events-none fixed w-[300px] h-[300px] bg-blue-500/10 blur-[120px] rounded-full z-0"
+        style={{
+          top: mouse.y - 150,
+          left: mouse.x - 150,
+        }}
+      />
+
+      {/* 🔥 BACKGROUND GLOW ANIMATION */}
+      <motion.div
+        animate={{ x: [0, 50, -50, 0], y: [0, -50, 50, 0] }}
+        transition={{ duration: 20, repeat: Infinity }}
+        className="absolute w-[500px] h-[500px] bg-purple-500/10 blur-[150px] top-[-150px] left-[-150px]"
+      />
+
+      <motion.div
+        animate={{ x: [0, -60, 60, 0], y: [0, 60, -60, 0] }}
+        transition={{ duration: 25, repeat: Infinity }}
+        className="absolute w-[500px] h-[500px] bg-blue-500/10 blur-[150px] bottom-[-150px] right-[-150px]"
+      />
+
+      <div className="relative z-10 mx-auto max-w-5xl space-y-12">
+
+        {/* 🔥 BRAND */}
+        <motion.div
+          initial={{ opacity: 0, y: -40 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col items-center gap-3"
+        >
+          <img
+            src={logo}
+            className="h-12"
+          />
+
+          {/* 🔥 GRADIENT TEXT */}
+          <h1 className="text-4xl sm:text-5xl font-bold tracking-[0.25em] bg-gradient-to-r from-white via-gray-300 to-white bg-clip-text text-transparent animate-pulse">
+            FOLLOW UP
+          </h1>
+        </motion.div>
+
+        {/* 🔥 BUTTONS */}
         <div className="flex justify-center gap-4">
-          <Button onClick={goOnline}>
-            Go Online
-          </Button>
-          <Button variant="secondary" onClick={goOffline}>
-            Continue Offline
-          </Button>
+          {[{ text: "Online", fn: goOnline }, { text: "Offline", fn: goOffline }].map((btn, i) => (
+            <motion.div
+              key={i}
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Button
+                onClick={btn.fn}
+                className="bg-white text-black hover:bg-gray-100 border border-white"
+              >
+                {btn.text}
+              </Button>
+            </motion.div>
+          ))}
         </div>
 
         {/* 🔥 HERO */}
-        <div className="text-center space-y-3">
-          <h1 className="text-4xl font-bold tracking-tight">
-            FollowUp
-          </h1>
-          <p className="text-muted-foreground">
-            Manage your clients and sessions seamlessly — online or offline.
-          </p>
-        </div>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="text-center text-gray-400 text-lg"
+        >
+          Manage your clients and sessions seamlessly online or offline
+        </motion.p>
 
-        {/* 🔥 INFO BLOCKS */}
-        <div className="space-y-6">
-
-          <Card className="p-4">
-            <CardContent>
-              <h2 className="font-semibold text-lg">
-                Track client sessions
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                Easily manage all your sessions with structured notes and timelines.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="p-4 ml-auto w-[80%]">
-            <CardContent>
-              <h2 className="font-semibold text-lg">
-                Offline-first support
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                Work without internet — your data stays safe locally.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="p-4 w-[80%]">
-            <CardContent>
-              <h2 className="font-semibold text-lg">
-                Secure online access
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                Sync your data securely with authentication and cloud storage.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="p-4 ml-auto">
-            <CardContent>
-              <h2 className="font-semibold text-lg">
-                Minimal and fast
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                Clean UI focused on productivity, not clutter.
-              </p>
-            </CardContent>
-          </Card>
-
-        </div>
-
-        {/* 🔥 BOTTOM CTA */}
-        <div className="flex justify-center gap-4 pt-6">
-          <Button onClick={goOnline}>
-            Start Online
-          </Button>
-          <Button variant="secondary" onClick={goOffline}>
-            Use Offline Mode
-          </Button>
+        {/* 🔥 CARDS */}
+        <div className="grid sm:grid-cols-2 gap-6">
+          {cards.map((item, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 60 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.1 }}
+              whileHover={{
+                rotateX: 5,
+                rotateY: -5,
+                scale: 1.03,
+              }}
+              className="perspective-1000"
+            >
+              <Card className="h-full p-5 bg-gradient-to-b from-[#18181b] to-[#0f0f10] border border-white/10 backdrop-blur-md">
+                <CardContent>
+                  <h2 className="font-semibold text-lg">{item.title}</h2>
+                  <p className="text-sm text-gray-400 mt-1">{item.desc}</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
         </div>
 
       </div>
