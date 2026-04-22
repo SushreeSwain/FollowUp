@@ -20,7 +20,7 @@ router.post('/', authMiddleware, async (req, res) => {
       date,
       title,
       notes,
-      userId: req.user.userId, 
+      userId: req.user.userId,
     });
 
     const saved = await session.save();
@@ -31,7 +31,7 @@ router.post('/', authMiddleware, async (req, res) => {
   }
 });
 
-// 🔍 SEARCH session (FIXED: only one + user filtered)
+// 🔍 SEARCH session
 router.get('/search', authMiddleware, async (req, res) => {
   try {
     const query = req.query.query;
@@ -50,7 +50,7 @@ router.get('/search', authMiddleware, async (req, res) => {
   }
 });
 
-// ✅ GET sessions by clientId
+// ✅ GET sessions by clientId (SAFE)
 router.get('/client/:clientId', authMiddleware, async (req, res) => {
   try {
     const sessions = await Session.find({
@@ -64,16 +64,17 @@ router.get('/client/:clientId', authMiddleware, async (req, res) => {
   }
 });
 
-// ✅ GET single session
+// ✅ GET single session (FIXED)
 router.get('/:id', authMiddleware, async (req, res) => {
   try {
-    const session = await Session.findOne({
-      _id: req.params.id,
-      userId: req.user.userId,
-    });
+    const session = await Session.findById(req.params.id);
 
     if (!session) {
       return res.status(404).json({ error: 'Session not found' });
+    }
+
+    if (session.userId.toString() !== req.user.userId) {
+      return res.status(403).json({ error: 'Forbidden' });
     }
 
     res.json(session);
@@ -82,27 +83,30 @@ router.get('/:id', authMiddleware, async (req, res) => {
   }
 });
 
-// ✅ UPDATE session
+// ✅ UPDATE session (FIXED)
 router.put('/:id', authMiddleware, async (req, res) => {
   try {
     const { date, title, notes } = req.body;
 
-    const updated = await Session.findOneAndUpdate(
-      {
-        _id: req.params.id,
-        userId: req.user.userId,
-      },
+    const session = await Session.findById(req.params.id);
+
+    if (!session) {
+      return res.status(404).json({ error: 'Session not found' });
+    }
+
+    if (session.userId.toString() !== req.user.userId) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    const updated = await Session.findByIdAndUpdate(
+      req.params.id,
       {
         ...(date && { date }),
         ...(title !== undefined && { title }),
         ...(notes !== undefined && { notes }),
       },
-      { returnDocument: 'after' }
+      { new: true }
     );
-
-    if (!updated) {
-      return res.status(404).json({ error: 'Session not found' });
-    }
 
     res.json(updated);
   } catch (err) {
@@ -110,13 +114,20 @@ router.put('/:id', authMiddleware, async (req, res) => {
   }
 });
 
-// ✅ DELETE session
+// ✅ DELETE session (FIXED)
 router.delete('/:id', authMiddleware, async (req, res) => {
   try {
-    await Session.findOneAndDelete({
-      _id: req.params.id,
-      userId: req.user.userId,
-    });
+    const session = await Session.findById(req.params.id);
+
+    if (!session) {
+      return res.status(404).json({ error: 'Session not found' });
+    }
+
+    if (session.userId.toString() !== req.user.userId) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    await Session.findByIdAndDelete(req.params.id);
 
     res.json({ message: 'Session deleted' });
   } catch (err) {
