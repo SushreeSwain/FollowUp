@@ -48,8 +48,10 @@ function Navbar() {
           onClick={() => navigate(mode === 'offline' ? '/' : '/app')}
         >
           <img src={logo} alt="FollowUp logo" className="h-7 w-auto object-contain drop-shadow-[0_0_6px_rgba(255,255,255,0.2)]" />
-          <span className="hidden sm:inline text-xl font-semibold tracking-tight">
-            Follow Up
+          <span className="hidden sm:inline text-l font-semibold tracking-[0.12em]"
+          style={{fontFamily: "Montserrat"}}
+          >
+            FOLLOW UP
           </span>
         </div>
 
@@ -58,7 +60,7 @@ function Navbar() {
           <div className="flex items-center gap-1 sm:gap-2">
 
             {navItems.map((item) => {
-              const Icon = item.icon; // ✅ FIXED POSITION
+              const Icon = item.icon; 
 
               const isActive =
                 item.path === '/clients'
