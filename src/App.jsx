@@ -14,6 +14,7 @@ import AddSession from './pages/AddSession';
 import SessionDetail from './pages/SessionDetail';
 import EditSession from './pages/EditSession';
 import NotFound from './pages/NotFound';
+import Forbidden from './pages/Forbidden';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -135,6 +136,8 @@ function App() {
           </Layout>
         </ProtectedRoute>
       } />
+
+      <Route path="/403" element={<Forbidden />} />
 
       <Route path="*" element={<NotFound />} />
 

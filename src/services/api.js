@@ -16,8 +16,22 @@ export async function apiFetch(endpoint, options = {}) {
   const data = await res.json();
 
   if (!res.ok) {
-    throw new Error(data.error || 'API error');
-  }
+    if (res.status === 403) {
+        const token = localStorage.getItem('token');
+
+        if (token) {
+            window.location.href = '/403';
+        } else {
+            window.location.href = '/login';
+        }
+
+        return;
+        }
+
+        const error = new Error(data?.error || 'Request failed');
+        error.status = res.status;
+        throw error;
+    }
 
   return data;
 }

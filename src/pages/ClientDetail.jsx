@@ -83,7 +83,7 @@ function ClientDetail() {
         setSessions(Array.isArray(sessionData) ? sessionData : []);
       } catch (err) {
         console.error("ERROR:", err);
-        navigate('/clients');
+        navigate('/403');
       }
     }
 
