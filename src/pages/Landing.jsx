@@ -56,6 +56,14 @@ function Landing() {
       title: "Minimal and fast",
       desc: "Clean UI focused on productivity",
     },
+    {
+      title: "Email reminders",
+      desc: "Reminders you can set so you can plan the day ahead",
+    },
+    {
+      title: "Priority based mode",
+      desc: "Tag clients as high priority whenever required",
+    },
   ];
 
   return (
