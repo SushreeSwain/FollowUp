@@ -67,7 +67,7 @@ function Navbar() {
           }}
         >
           <img src={logo} alt="FollowUp logo" className="h-7 w-7" />
-          <span className="text-xl font-semibold tracking-tight">
+          <span className="hidden sm:inline text-xl font-semibold tracking-tight">
             Follow Up
           </span>
         </div>
