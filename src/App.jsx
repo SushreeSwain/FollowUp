@@ -6,7 +6,7 @@ import ClientList from './pages/ClientList';
 import AddClient from './pages/AddClient';
 import ClientDetail from './pages/ClientDetail';
 import EditClient from './pages/EditClient';
-import Sessions from './pages/Sessions'; // ✅ ONLY ONCE
+import Sessions from './pages/Sessions'; 
 import ExportClient from './pages/ExportClient';
 import DeleteConfirmation from './pages/DeleteConfirmation';
 import Layout from './components/Layout';
@@ -18,6 +18,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ProtectedRoute from './components/ProtectedRoute';
 import About from './pages/About';
+import Dashboard from './pages/Dashboard';
 
 function App() {
   return (
@@ -123,6 +124,14 @@ function App() {
         <ProtectedRoute>
           <Layout>
             <About />
+          </Layout>
+        </ProtectedRoute>
+      } />
+
+      <Route path="/dashboard" element={
+        <ProtectedRoute>
+          <Layout>
+            <Dashboard />
           </Layout>
         </ProtectedRoute>
       } />

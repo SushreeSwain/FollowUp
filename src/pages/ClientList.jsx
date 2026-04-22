@@ -239,11 +239,6 @@ function ClientList() {
                           )}
                         </div>
 
-                        {/* KEEP YOUR EXISTING TEXT BELOW */}
-                        <span className="text-sm text-muted-foreground">
-                          {client.sessions?.length || 0} sessions
-                        </span>
-
                       </div>
                     </div>
 

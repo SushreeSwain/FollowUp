@@ -3,6 +3,13 @@ import NavBar from './NavBar';
 import { Button } from '@/components/ui/button';
 import Footer from './Footer';
 
+import {
+  SidebarProvider,
+  SidebarInset,
+  SidebarTrigger,
+} from '@/components/ui/sidebar';
+
+import AppSidebar from './AppSidebar';
 
 function Layout({ children }) {
   const navigate = useNavigate();
@@ -11,26 +18,40 @@ function Layout({ children }) {
   const showBackButton = location.pathname !== '/';
 
   return (
-    <>
-      <NavBar />
+    <SidebarProvider>
 
-      {showBackButton && (
-        <div className="px-6 pt-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate(-1)}
-          >
-            Back
-          </Button>
+      <AppSidebar />
+
+      <SidebarInset>
+
+        <NavBar />
+
+        {/* TOP BAR */}
+        <div className="flex items-center justify-between px-6 pt-4">
+          {showBackButton && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate(-1)}
+            >
+              Back
+            </Button>
+          )}
+
+          {/* SIDEBAR TOGGLE BUTTON */}
+          <SidebarTrigger />
         </div>
-      )}
 
-      <main className="min-h-screen bg-background px-6 pt-4 pb-8">
-        {children}
-      </main>
-      <Footer/>
-    </>
+        {/* MAIN */}
+        <main className="min-h-screen bg-background px-6 pt-4 pb-8">
+          {children}
+        </main>
+
+        <Footer />
+
+      </SidebarInset>
+
+    </SidebarProvider>
   );
 }
 
