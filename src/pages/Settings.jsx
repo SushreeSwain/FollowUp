@@ -6,6 +6,7 @@ import { Switch } from '@/components/ui/switch';
 import { apiFetch } from '@/services/api';
 import { db } from '../storage/db'; 
 import { updateEmail } from '@/services/userService';
+import { updatePassword } from '@/services/userService';
 
 export default function Settings() {
   const mode = localStorage.getItem('mode');
@@ -73,6 +74,25 @@ function OnlineSettings() {
       }
     };
 
+    const handleUpdatePassword = async () => {
+        if (!currentPassword || !newPassword) {
+            alert('Fill all fields');
+            return;
+        }
+
+        try {
+            await updatePassword(currentPassword, newPassword);
+
+            alert('Password updated successfully');
+
+            // optional: clear inputs
+            setCurrentPassword('');
+            setNewPassword('');
+        } catch (err) {
+            alert(err.message);
+        }
+    };
+
   return (
     <div className="p-6 max-w-2xl space-y-6">
       <h1 className="text-2xl font-semibold">Settings</h1>
@@ -113,7 +133,9 @@ function OnlineSettings() {
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
           />
-          <Button variant="outline">Update Password</Button>
+          <Button variant="outline" onClick={handleUpdatePassword}>
+            Update Password
+          </Button>
         </CardContent>
       </Card>
 

@@ -3,6 +3,7 @@ import User from '../models/User.js';
 import Client from '../models/Client.js';
 import Session from '../models/Sessions.js';
 import authMiddleware from '../middleware/authMiddleware.js';
+import bcrypt from 'bcryptjs';
 
 const router = express.Router();
 
@@ -60,6 +61,50 @@ router.put('/email', authMiddleware, async (req, res) => {
         email: updatedUser.email,
       },
     });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// UPDATE PASSWORD
+router.put('/password', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { currentPassword, newPassword } = req.body;
+
+    // 1. validation
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Both fields required' });
+    }
+
+    if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/.test(newPassword)) {
+      return res.status(400).json({
+        error: 'Password must be at least 6 characters and include a number',
+      });
+    }
+
+    // 2. get user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // 3. check current password
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ error: 'Incorrect current password' });
+    }
+
+    // 4. hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // 5. update
+    user.password = hashedPassword;
+    await user.save();
+
+    res.json({ message: 'Password updated successfully' });
 
   } catch (err) {
     res.status(500).json({ error: err.message });
