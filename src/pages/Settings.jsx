@@ -1,7 +1,29 @@
 import { useState } from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
+import { apiFetch } from '@/services/api';
+import { db } from '../storage/db'; // ✅ FIXED IMPORT
 
 export default function Settings() {
+  const mode = localStorage.getItem('mode');
+
+  if (mode !== 'online') {
+    return <OfflineSettings />;
+  }
+
+  return <OnlineSettings />;
+}
+
+/* ================= ONLINE ================= */
+
+function OnlineSettings() {
   const [confirmText, setConfirmText] = useState('');
+  const [email, setEmail] = useState('');
+  const [reminders, setReminders] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
 
   const handleDelete = async () => {
     if (confirmText !== 'DELETE') {
@@ -9,21 +31,12 @@ export default function Settings() {
       return;
     }
 
-    const token = localStorage.getItem('token');
-
     try {
-      const res = await fetch('https://followup-backend-90z3.onrender.com/api/users/me', {
+      await apiFetch('/users/me', {
         method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       });
 
-      if (!res.ok) {
-        throw new Error('Failed to delete account');
-      }
-
-      // logout after delete
+      alert('Account deleted successfully');
       localStorage.clear();
       window.location.href = '/';
     } catch (err) {
@@ -32,33 +45,133 @@ export default function Settings() {
   };
 
   return (
-    <div className="p-6 max-w-xl">
-      <h1 className="text-2xl font-semibold mb-6">Settings</h1>
+    <div className="p-6 max-w-2xl space-y-6">
+      <h1 className="text-2xl font-semibold">Settings</h1>
 
-      <div className="border p-4 rounded-lg">
-        <h2 className="text-lg font-medium text-red-400 mb-2">
-          Delete Account
-        </h2>
+      {/* 🧾 Account Info */}
+      <Card className="w-full max-w-lg bg-gradient-to-b from-[#0f0f10] to-[#18181b] border border-white/10 shadow-lg">
+        <CardHeader>
+          <CardTitle>Account Info</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <Input value="Your Name" disabled />
+          <Input
+            placeholder="Update email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <Button variant="outline">Update Email</Button>
+        </CardContent>
+      </Card>
 
-        <p className="text-sm text-gray-400 mb-4">
-          This action is permanent. All your clients and sessions will be deleted.
-        </p>
+      {/* 🔐 Security */}
+      <Card className="w-full max-w-lg bg-gradient-to-b from-[#0f0f10] to-[#18181b] border border-white/10 shadow-lg">
+        <CardHeader>
+          <CardTitle>Security</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <Input
+            type="password"
+            placeholder="Current password"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+          />
+          <Input
+            type="password"
+            placeholder="New password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+          />
+          <Button variant="outline">Update Password</Button>
+        </CardContent>
+      </Card>
 
-        <input
-          type="text"
-          placeholder="Type DELETE to confirm"
-          value={confirmText}
-          onChange={(e) => setConfirmText(e.target.value)}
-          className="border p-2 w-full mb-3 rounded text-black"
-        />
+      {/* ⚙️ Preferences */}
+      <Card className="w-full max-w-lg bg-gradient-to-b from-[#0f0f10] to-[#18181b] border border-white/10 shadow-lg">
+        <CardHeader>
+          <CardTitle>Email Reminders</CardTitle>
+        </CardHeader>
+        <CardContent className="flex items-center justify-between">
+          <span className="text-sm text-gray-400">
+            Enable email reminders
+          </span>
+          <Switch checked={reminders} onCheckedChange={setReminders} />
+        </CardContent>
+      </Card>
 
-        <button
-          onClick={handleDelete}
-          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
-        >
-          Delete Account
-        </button>
-      </div>
+      {/* 🧨 Danger Zone */}
+      <Card className="w-full max-w-lg bg-gradient-to-b from-[#0f0f10] to-[#18181b] border border-red-500/40 shadow-lg">
+        <CardHeader>
+          <CardTitle className="text-red-500">Danger Zone</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-sm text-gray-400">
+            This action is permanent. All your clients and sessions will be deleted.
+          </p>
+
+          <Input
+            placeholder="Type DELETE to confirm"
+            value={confirmText}
+            onChange={(e) => setConfirmText(e.target.value)}
+          />
+
+          <Button variant="destructive" onClick={handleDelete}>
+            Delete Account
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+/* ================= OFFLINE ================= */
+
+function OfflineSettings() {
+  const [confirmText, setConfirmText] = useState('');
+
+  const handleClearData = async () => {
+    if (confirmText !== 'DELETE') {
+      alert('Type DELETE to confirm');
+      return;
+    }
+
+    try {
+      console.log("REAL DB:", db); // should now be Dexie instance
+
+      await db.delete();
+
+      alert('Local data cleared');
+      window.location.href = '/';
+    } catch (err) {
+      console.error(err);
+      alert('Failed to clear local data');
+    }
+  };
+
+  return (
+    <div className="p-6 max-w-2xl space-y-6">
+      <h1 className="text-2xl font-semibold">Settings (Offline Mode)</h1>
+
+      <Card className="w-full max-w-lg bg-gradient-to-b from-[#0f0f10] to-[#18181b] border border-yellow-500/30 shadow-lg">
+        <CardHeader>
+          <CardTitle>Offline Mode</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-sm text-gray-400">
+            You are currently using offline mode. Account settings are unavailable.
+          </p>
+
+          <Input
+            placeholder="Type DELETE to clear local data"
+            value={confirmText}
+            onChange={(e) => setConfirmText(e.target.value)}
+          />
+
+          <Button variant="destructive" onClick={handleClearData}>
+            Clear Local Data
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 }
