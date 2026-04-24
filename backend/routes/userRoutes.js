@@ -97,6 +97,12 @@ router.put('/password', authMiddleware, async (req, res) => {
       return res.status(400).json({ error: 'Incorrect current password' });
     }
 
+    if (currentPassword === newPassword) {
+        return res.status(400).json({
+            error: 'New password must be different from current password',
+        });
+    }
+
     // 4. hash new password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 

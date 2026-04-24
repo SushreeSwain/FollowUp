@@ -7,6 +7,7 @@ import { apiFetch } from '@/services/api';
 import { db } from '../storage/db';
 import { updateEmail, updatePassword } from '@/services/userService';
 import { useToast } from '../hooks/use-toast';
+import { Eye, EyeOff } from "lucide-react";
 
 export default function Settings() {
   const mode = localStorage.getItem('mode');
@@ -29,6 +30,9 @@ function OnlineSettings() {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [name, setName] = useState('');
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const user = JSON.parse(localStorage.getItem('user'));
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
@@ -76,6 +80,15 @@ function OnlineSettings() {
         variant: "destructive",
       });
       return;
+    }
+
+    if (email === user.email) {
+        toast({
+            title: "Alert",
+            description: "New email must be different",
+            variant: "destructive",
+        });
+        return;
     }
 
     try {
@@ -153,24 +166,39 @@ function OnlineSettings() {
           <CardTitle>Security</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <Input
-            type="password"
-            placeholder="Current password"
-            value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
-          />
-          <Input
-            type="password"
-            placeholder="New password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-          />
-          <Button
-            onClick={handleUpdatePassword}
-            disabled={!currentPassword || !newPassword}
-          >
-            Update Password
-          </Button>
+          <div className="relative">
+            <Input
+                type={showCurrent ? "text" : "password"}
+                placeholder="Current password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+            />
+
+            <button
+                type="button"
+                onClick={() => setShowCurrent(prev => !prev)}
+                className="absolute right-3 top-2 text-muted-foreground"
+            >
+                {showCurrent ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+            </div>
+
+            <div className="relative">
+            <Input
+                type={showNew ? "text" : "password"}
+                placeholder="New password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+            />
+
+            <button
+                type="button"
+                onClick={() => setShowNew(prev => !prev)}
+                className="absolute right-3 top-2 text-muted-foreground"
+            >
+                {showNew ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+            </div>
         </CardContent>
       </Card>
 
@@ -190,7 +218,7 @@ function OnlineSettings() {
       {/* Danger Zone */}
       <Card className="w-full max-w-lg bg-gradient-to-b from-[#0f0f10] to-[#18181b] border border-red-500/40 shadow-lg">
         <CardHeader>
-          <CardTitle className="text-red-500">Danger Zone</CardTitle>
+          <CardTitle className="text-red-500">Delete Account</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <p className="text-sm text-gray-400">
