@@ -133,7 +133,7 @@ function OnlineSettings() {
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
           />
-          <Button variant="outline" onClick={handleUpdatePassword}>
+          <Button variant="outline" onClick={handleUpdatePassword} disabled={!currentPassword || !newPassword}>
             Update Password
           </Button>
         </CardContent>
