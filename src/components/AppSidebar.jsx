@@ -48,6 +48,15 @@ export default function AppSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
 
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                    className="text-base font-medium hover:scale-[1.02] transition-all"
+                    onClick={() => navigate('/settings')}
+                >
+                    Settings
+                </SidebarMenuButton>
+                </SidebarMenuItem>
+
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

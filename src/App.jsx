@@ -20,6 +20,7 @@ import Register from './pages/Register';
 import ProtectedRoute from './components/ProtectedRoute';
 import About from './pages/About';
 import Dashboard from './pages/Dashboard';
+import Settings from './pages/Settings';
 
 function App() {
   return (
@@ -133,6 +134,14 @@ function App() {
         <ProtectedRoute>
           <Layout>
             <Dashboard />
+          </Layout>
+        </ProtectedRoute>
+      } />
+
+      <Route path="/settings" element={
+        <ProtectedRoute>
+          <Layout>
+            <Settings />
           </Layout>
         </ProtectedRoute>
       } />
