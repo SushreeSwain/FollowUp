@@ -6,7 +6,7 @@ import { Switch } from '@/components/ui/switch';
 import { apiFetch } from '@/services/api';
 import { db } from '../storage/db';
 import { updateEmail, updatePassword } from '@/services/userService';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '../hooks/use-toast';
 
 export default function Settings() {
   const mode = localStorage.getItem('mode');
