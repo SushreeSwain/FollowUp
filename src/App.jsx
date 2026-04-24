@@ -21,136 +21,140 @@ import ProtectedRoute from './components/ProtectedRoute';
 import About from './pages/About';
 import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings';
+import { Toaster } from '@/components/ui/toaster';
 
 function App() {
   return (
-    <Routes>
+    <>
+      <Routes>
 
-      {/* PUBLIC */}
-      <Route path="/" element={<Landing />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+        {/* PUBLIC */}
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-      {/* APP */}
-      <Route path="/app" element={
-        <ProtectedRoute>
-          <Layout>
-            <Home />
-          </Layout>
-        </ProtectedRoute>
-      } />
+        {/* APP */}
+        <Route path="/app" element={
+          <ProtectedRoute>
+            <Layout>
+              <Home />
+            </Layout>
+          </ProtectedRoute>
+        } />
 
-      <Route path="/clients" element={
-        <ProtectedRoute>
-          <Layout>
-            <ClientList />
-          </Layout>
-        </ProtectedRoute>
-      } />
+        <Route path="/clients" element={
+          <ProtectedRoute>
+            <Layout>
+              <ClientList />
+            </Layout>
+          </ProtectedRoute>
+        } />
 
-      <Route path="/clients/new" element={
-        <ProtectedRoute>
-          <Layout>
-            <AddClient />
-          </Layout>
-        </ProtectedRoute>
-      } />
+        <Route path="/clients/new" element={
+          <ProtectedRoute>
+            <Layout>
+              <AddClient />
+            </Layout>
+          </ProtectedRoute>
+        } />
 
-      <Route path="/clients/:id" element={
-        <ProtectedRoute>
-          <Layout>
-            <ClientDetail />
-          </Layout>
-        </ProtectedRoute>
-      } />
+        <Route path="/clients/:id" element={
+          <ProtectedRoute>
+            <Layout>
+              <ClientDetail />
+            </Layout>
+          </ProtectedRoute>
+        } />
 
-      <Route path="/clients/:id/edit" element={
-        <ProtectedRoute>
-          <Layout>
-            <EditClient />
-          </Layout>
-        </ProtectedRoute>
-      } />
+        <Route path="/clients/:id/edit" element={
+          <ProtectedRoute>
+            <Layout>
+              <EditClient />
+            </Layout>
+          </ProtectedRoute>
+        } />
 
-      {/* CLIENT SESSIONS */}
-      <Route path="/clients/:id/sessions/new" element={
-        <ProtectedRoute>
-          <Layout>
-            <AddSession />
-          </Layout>
-        </ProtectedRoute>
-      } />
+        {/* CLIENT SESSIONS */}
+        <Route path="/clients/:id/sessions/new" element={
+          <ProtectedRoute>
+            <Layout>
+              <AddSession />
+            </Layout>
+          </ProtectedRoute>
+        } />
 
-      <Route path="/clients/:clientId/sessions/:sessionId" element={
-        <ProtectedRoute>
-          <Layout>
-            <SessionDetail />
-          </Layout>
-        </ProtectedRoute>
-      } />
+        <Route path="/clients/:clientId/sessions/:sessionId" element={
+          <ProtectedRoute>
+            <Layout>
+              <SessionDetail />
+            </Layout>
+          </ProtectedRoute>
+        } />
 
-      <Route path="/clients/:clientId/sessions/:sessionId/edit" element={
-        <ProtectedRoute>
-          <Layout>
-            <EditSession />
-          </Layout>
-        </ProtectedRoute>
-      } />
+        <Route path="/clients/:clientId/sessions/:sessionId/edit" element={
+          <ProtectedRoute>
+            <Layout>
+              <EditSession />
+            </Layout>
+          </ProtectedRoute>
+        } />
 
-      {/* GLOBAL SESSIONS PAGE */}
-      <Route path="/sessions" element={
-        <ProtectedRoute>
-          <Layout>
-            <Sessions /> 
-          </Layout>
-        </ProtectedRoute>
-      } />
+        {/* GLOBAL SESSIONS PAGE */}
+        <Route path="/sessions" element={
+          <ProtectedRoute>
+            <Layout>
+              <Sessions /> 
+            </Layout>
+          </ProtectedRoute>
+        } />
 
-      <Route path="/clients/:id/export" element={
-        <ProtectedRoute>
-          <Layout>
-            <ExportClient />
-          </Layout>
-        </ProtectedRoute>
-      } />
+        <Route path="/clients/:id/export" element={
+          <ProtectedRoute>
+            <Layout>
+              <ExportClient />
+            </Layout>
+          </ProtectedRoute>
+        } />
 
-      <Route path="/clients/:id/delete" element={
-        <ProtectedRoute>
-          <Layout>
-            <DeleteConfirmation />
-          </Layout>
-        </ProtectedRoute>
-      } />
+        <Route path="/clients/:id/delete" element={
+          <ProtectedRoute>
+            <Layout>
+              <DeleteConfirmation />
+            </Layout>
+          </ProtectedRoute>
+        } />
 
-      <Route path="/about" element={
-        <ProtectedRoute>
-          <Layout>
-            <About />
-          </Layout>
-        </ProtectedRoute>
-      } />
+        <Route path="/about" element={
+          <ProtectedRoute>
+            <Layout>
+              <About />
+            </Layout>
+          </ProtectedRoute>
+        } />
 
-      <Route path="/dashboard" element={
-        <ProtectedRoute>
-          <Layout>
-            <Dashboard />
-          </Layout>
-        </ProtectedRoute>
-      } />
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <Layout>
+              <Dashboard />
+            </Layout>
+          </ProtectedRoute>
+        } />
 
-      <Route path="/settings" element={
-        <ProtectedRoute>
-          <Layout>
-            <Settings />
-          </Layout>
-        </ProtectedRoute>
-      } />
+        <Route path="/settings" element={
+          <ProtectedRoute>
+            <Layout>
+              <Settings />
+            </Layout>
+          </ProtectedRoute>
+        } />
 
-      <Route path="/403" element={<Forbidden />} />
+        <Route path="/403" element={<Forbidden />} />
+        <Route path="*" element={<NotFound />} />
 
-      <Route path="*" element={<NotFound />} />
+      </Routes>
+      <Toaster />
 
-    </Routes>
+    </>
   );
 }
 

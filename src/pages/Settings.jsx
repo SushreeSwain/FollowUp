@@ -4,9 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { apiFetch } from '@/services/api';
-import { db } from '../storage/db'; 
-import { updateEmail } from '@/services/userService';
-import { updatePassword } from '@/services/userService';
+import { db } from '../storage/db';
+import { updateEmail, updatePassword } from '@/services/userService';
+import { useToast } from '@/components/ui/use-toast';
 
 export default function Settings() {
   const mode = localStorage.getItem('mode');
@@ -21,6 +21,8 @@ export default function Settings() {
 /* ================= ONLINE ================= */
 
 function OnlineSettings() {
+  const { toast } = useToast();
+
   const [confirmText, setConfirmText] = useState('');
   const [email, setEmail] = useState('');
   const [reminders, setReminders] = useState(false);
@@ -32,72 +34,102 @@ function OnlineSettings() {
     const user = JSON.parse(localStorage.getItem('user'));
 
     if (user) {
-        setName(user.name || '');
-        setEmail(user.email || '');
-      }
-    }, []);
+      setName(user.name || '');
+      setEmail(user.email || '');
+    }
+  }, []);
 
   const handleDelete = async () => {
     if (confirmText !== 'DELETE') {
-      alert('Type DELETE to confirm');
+      toast({
+        title: "Error",
+        description: "Type DELETE to confirm",
+        variant: "destructive",
+      });
       return;
     }
 
     try {
-      await apiFetch('/users/me', {
-        method: 'DELETE',
+      await apiFetch('/users/me', { method: 'DELETE' });
+
+      toast({
+        title: "Success",
+        description: "Account deleted successfully",
       });
 
-      alert('Account deleted successfully');
       localStorage.clear();
       window.location.href = '/';
     } catch (err) {
-      alert(err.message);
+      toast({
+        title: "Error",
+        description: err.message,
+        variant: "destructive",
+      });
     }
   };
 
   const handleUpdateEmail = async () => {
     if (!email) {
-        alert('Enter email');
-        return;
+      toast({
+        title: "Error",
+        description: "Enter a valid email",
+        variant: "destructive",
+      });
+      return;
     }
 
     try {
-        const res = await updateEmail(email);
+      const res = await updateEmail(email);
 
-        // 🔥 IMPORTANT: update localStorage
-        localStorage.setItem('user', JSON.stringify(res.user));
+      localStorage.setItem('user', JSON.stringify(res.user));
 
-        alert('Email updated successfully');
-      } catch (err) {
-        alert(err.message);
-      }
-    };
+      toast({
+        title: "Success",
+        description: "Email updated successfully",
+      });
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: err.message,
+        variant: "destructive",
+      });
+    }
+  };
 
-    const handleUpdatePassword = async () => {
-        if (!currentPassword || !newPassword) {
-            alert('Fill all fields');
-            return;
-        }
+  const handleUpdatePassword = async () => {
+    if (!currentPassword || !newPassword) {
+      toast({
+        title: "Error",
+        description: "Fill all fields",
+        variant: "destructive",
+      });
+      return;
+    }
 
-        try {
-            await updatePassword(currentPassword, newPassword);
+    try {
+      await updatePassword(currentPassword, newPassword);
 
-            alert('Password updated successfully');
+      toast({
+        title: "Success",
+        description: "Password updated successfully",
+      });
 
-            // optional: clear inputs
-            setCurrentPassword('');
-            setNewPassword('');
-        } catch (err) {
-            alert(err.message);
-        }
-    };
+      setCurrentPassword('');
+      setNewPassword('');
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: err.message,
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div className="p-6 max-w-2xl space-y-6">
       <h1 className="text-2xl font-semibold">Settings</h1>
 
-      {/* 🧾 Account Info */}
+      {/* Account Info */}
       <Card className="w-full max-w-lg bg-gradient-to-b from-[#0f0f10] to-[#18181b] border border-white/10 shadow-lg">
         <CardHeader>
           <CardTitle>Account Info</CardTitle>
@@ -109,13 +141,13 @@ function OnlineSettings() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          <Button variant="outline" onClick={handleUpdateEmail} disabled={!email}>
+          <Button onClick={handleUpdateEmail} disabled={!email}>
             Update Email
           </Button>
         </CardContent>
       </Card>
 
-      {/* 🔐 Security */}
+      {/* Security */}
       <Card className="w-full max-w-lg bg-gradient-to-b from-[#0f0f10] to-[#18181b] border border-white/10 shadow-lg">
         <CardHeader>
           <CardTitle>Security</CardTitle>
@@ -133,13 +165,16 @@ function OnlineSettings() {
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
           />
-          <Button variant="outline" onClick={handleUpdatePassword} disabled={!currentPassword || !newPassword}>
+          <Button
+            onClick={handleUpdatePassword}
+            disabled={!currentPassword || !newPassword}
+          >
             Update Password
           </Button>
         </CardContent>
       </Card>
 
-      {/* ⚙️ Preferences */}
+      {/* Preferences */}
       <Card className="w-full max-w-lg bg-gradient-to-b from-[#0f0f10] to-[#18181b] border border-white/10 shadow-lg">
         <CardHeader>
           <CardTitle>Email Reminders</CardTitle>
@@ -152,7 +187,7 @@ function OnlineSettings() {
         </CardContent>
       </Card>
 
-      {/* 🧨 Danger Zone */}
+      {/* Danger Zone */}
       <Card className="w-full max-w-lg bg-gradient-to-b from-[#0f0f10] to-[#18181b] border border-red-500/40 shadow-lg">
         <CardHeader>
           <CardTitle className="text-red-500">Danger Zone</CardTitle>
@@ -180,24 +215,35 @@ function OnlineSettings() {
 /* ================= OFFLINE ================= */
 
 function OfflineSettings() {
+  const { toast } = useToast();
   const [confirmText, setConfirmText] = useState('');
 
   const handleClearData = async () => {
     if (confirmText !== 'DELETE') {
-      alert('Type DELETE to confirm');
+      toast({
+        title: "Error",
+        description: "Type DELETE to confirm",
+        variant: "destructive",
+      });
       return;
     }
 
     try {
-      console.log("REAL DB:", db); // should now be Dexie instance
-
       await db.delete();
 
-      alert('Local data cleared');
+      toast({
+        title: "Success",
+        description: "Local data cleared",
+      });
+
       window.location.href = '/';
     } catch (err) {
       console.error(err);
-      alert('Failed to clear local data');
+      toast({
+        title: "Error",
+        description: "Failed to clear local data",
+        variant: "destructive",
+      });
     }
   };
 
