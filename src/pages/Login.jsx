@@ -141,8 +141,17 @@ function Login() {
           >
             Create an account
           </Button>
+        
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/')}
+            className="text-sm text-muted-foreground hover:text-foreground"
+          >
+            Back to Landing Page
+        </Button>
         </CardFooter>
       </Card>
+
     </div>
   );
 }

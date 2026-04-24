@@ -151,6 +151,14 @@ function Register() {
           >
             Already have an account? Login
           </Button>
+
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/')}
+            className="text-sm text-muted-foreground hover:text-foreground"
+          >
+            Back
+        </Button>
         </CardFooter>
       </Card>
     </div>
