@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,6 +25,16 @@ function OnlineSettings() {
   const [reminders, setReminders] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [name, setName] = useState('');
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+
+    if (user) {
+        setName(user.name || '');
+        setEmail(user.email || '');
+      }
+    }, []);
 
   const handleDelete = async () => {
     if (confirmText !== 'DELETE') {
@@ -73,13 +83,13 @@ function OnlineSettings() {
           <CardTitle>Account Info</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <Input value="Your Name" disabled />
+          <Input value={name} disabled />
           <Input
             placeholder="Update email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          <Button variant="outline" onClick={handleUpdateEmail}>
+          <Button variant="outline" onClick={handleUpdateEmail} disabled={!email}>
             Update Email
           </Button>
         </CardContent>
