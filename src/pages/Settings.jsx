@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { apiFetch } from '@/services/api';
-import { db } from '../storage/db'; // ✅ FIXED IMPORT
+import { db } from '../storage/db'; 
+import { updateEmail } from '@/services/userService';
 
 export default function Settings() {
   const mode = localStorage.getItem('mode');
@@ -44,6 +45,24 @@ function OnlineSettings() {
     }
   };
 
+  const handleUpdateEmail = async () => {
+    if (!email) {
+        alert('Enter email');
+        return;
+    }
+
+    try {
+        const res = await updateEmail(email);
+
+        // 🔥 IMPORTANT: update localStorage
+        localStorage.setItem('user', JSON.stringify(res.user));
+
+        alert('Email updated successfully');
+      } catch (err) {
+        alert(err.message);
+      }
+    };
+
   return (
     <div className="p-6 max-w-2xl space-y-6">
       <h1 className="text-2xl font-semibold">Settings</h1>
@@ -60,7 +79,9 @@ function OnlineSettings() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          <Button variant="outline">Update Email</Button>
+          <Button variant="outline" onClick={handleUpdateEmail}>
+            Update Email
+          </Button>
         </CardContent>
       </Card>
 
