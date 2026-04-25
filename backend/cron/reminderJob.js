@@ -4,10 +4,11 @@ import Session from '../models/Sessions.js';
 import Client from '../models/Client.js';
 import { sendEmail } from '../utils/sendEmail.js';
 
-cron.schedule('0 7 * * *', async () => {
+cron.schedule('* * * * *', async () => {
   console.log('Running reminder job...');
 
   const users = await User.find({ remindersEnabled: true });
+  console.log('Users found:', users.length);
 
   const todayStart = new Date();
   todayStart.setHours(0,0,0,0);
@@ -16,10 +17,14 @@ cron.schedule('0 7 * * *', async () => {
   todayEnd.setHours(23,59,59,999);
 
   for (const user of users) {
+    console.log('Checking user:', user.email);
+
     const sessions = await Session.find({
       userId: user._id,
       date: { $gte: todayStart, $lte: todayEnd },
     });
+
+    console.log('Sessions found:', sessions.length);
 
     if (sessions.length === 0) continue;
 
@@ -30,6 +35,8 @@ cron.schedule('0 7 * * *', async () => {
 
       message += `• ${client?.name || 'Client'} at ${new Date(session.date).toLocaleTimeString()}\n`;
     }
+
+    console.log('Sending email to:', user.email);
 
     await sendEmail(
       user.email,
