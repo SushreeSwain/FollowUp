@@ -36,11 +36,19 @@ function OnlineSettings() {
   const user = JSON.parse(localStorage.getItem('user'));
 
   useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+
     if (user) {
-      setName(user.name || '');
-      setEmail(user.email || '');
+        setName(user.name || '');
+        setEmail(user.email || '');
     }
-  }, []);
+
+    apiFetch('/users/me')
+        .then(res => {
+            setReminders(res.remindersEnabled);
+        })
+        .catch(() => {});
+    }, []);
 
   /* ===== HANDLERS ===== */
 
@@ -128,9 +136,9 @@ function OnlineSettings() {
         });
     } catch (err) {
         toast({
-        title: "Error",
-        description: "Failed to update reminders",
-        variant: "destructive",
+            title: "Error",
+            description: "Failed to update reminders",
+            variant: "destructive",
         });
     }
   };

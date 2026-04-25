@@ -128,7 +128,11 @@ router.put('/reminders', authMiddleware, async (req, res) => {
       { new: true }
     );
 
-    res.json({ remindersEnabled: user.remindersEnabled });
+    res.json({
+      message: 'Reminders updated',
+      remindersEnabled: user.remindersEnabled,
+    });
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
