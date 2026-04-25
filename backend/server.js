@@ -1,6 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+dotenv.config();
 import cors from 'cors';
 
 import clientRoutes from './routes/ClientRoutes.js';
@@ -9,14 +10,6 @@ import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import './cron/reminderJob.js';
 import { sendEmail } from './utils/sendEmail.js';
-
-sendEmail(
-  'yourpersonalemail@gmail.com',
-  'Test Email',
-  'If you got this, email works 🎉'
-);
-
-dotenv.config();
 
 const app = express();
 
