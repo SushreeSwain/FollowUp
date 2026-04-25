@@ -45,7 +45,7 @@ function OnlineSettings() {
 
     apiFetch('/users/me')
         .then(res => {
-            setReminders(res.remindersEnabled);
+            setReminders(res.remindersEnabled || false);
         })
         .catch(() => {});
     }, []);

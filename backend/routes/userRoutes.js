@@ -7,6 +7,22 @@ import bcrypt from 'bcryptjs';
 
 const router = express.Router();
 
+router.get('/me', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId);
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      remindersEnabled: user.remindersEnabled,
+    });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // DELETE ACCOUNT
 router.delete('/me', authMiddleware, async (req, res) => {
   try {
