@@ -4,7 +4,7 @@ import Session from '../models/Sessions.js';
 import Client from '../models/Client.js';
 import { sendEmail } from '../utils/sendEmail.js';
 
-cron.schedule('* * * * *', async () => {
+cron.schedule('0 7 * * *', async () => {
   console.log('Running reminder job...');
 
   const users = await User.find({ remindersEnabled: true });
