@@ -118,6 +118,23 @@ function OnlineSettings() {
     }
   };
 
+  const handleToggleReminders = async (value) => {
+    setReminders(value);
+
+    try {
+        await apiFetch('/users/reminders', {
+        method: 'PUT',
+        body: JSON.stringify({ enabled: value }),
+        });
+    } catch (err) {
+        toast({
+        title: "Error",
+        description: "Failed to update reminders",
+        variant: "destructive",
+        });
+    }
+  };
+
   return (
     <div className="p-6 max-w-2xl space-y-6 animate-in fade-in duration-300">
       <h1 className="text-2xl font-semibold">Settings</h1>
@@ -196,8 +213,8 @@ function OnlineSettings() {
           <CardTitle>Email Reminders</CardTitle>
         </CardHeader>
         <CardContent className="flex justify-between items-center">
-          <span className="text-sm text-gray-400">Enable email reminders</span>
-          <Switch checked={reminders} onCheckedChange={setReminders} />
+          <span className="text-sm text-gray-400">Enable email reminders so you don't miss out on your coming sessions</span>
+          <Switch checked={reminders} onCheckedChange={handleToggleReminders} />
         </CardContent>
       </Card>
 

@@ -7,6 +7,14 @@ import clientRoutes from './routes/ClientRoutes.js';
 import sessionRoutes from './routes/sessionRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import './cron/reminderJob.js';
+import { sendEmail } from './utils/sendEmail.js';
+
+sendEmail(
+  'yourpersonalemail@gmail.com',
+  'Test Email',
+  'If you got this, email works 🎉'
+);
 
 dotenv.config();
 

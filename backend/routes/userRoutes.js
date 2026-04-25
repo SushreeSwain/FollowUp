@@ -117,4 +117,21 @@ router.put('/password', authMiddleware, async (req, res) => {
   }
 });
 
+router.put('/reminders', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { enabled } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { remindersEnabled: enabled },
+      { new: true }
+    );
+
+    res.json({ remindersEnabled: user.remindersEnabled });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;
