@@ -85,6 +85,19 @@ router.get('/:id', authMiddleware, async (req, res) => {
   }
 });
 
+// ✅ GET ALL SESSIONS (for payments dashboard)
+router.get('/', authMiddleware, async (req, res) => {
+  try {
+    const sessions = await Session.find({
+      userId: req.user.userId,
+    }).sort({ date: -1 });
+
+    res.json(sessions);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ✅ UPDATE session (FIXED)
 router.put('/:id', authMiddleware, async (req, res) => {
   try {
