@@ -55,7 +55,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
 // ADD new client
 router.post('/', authMiddleware, async (req, res) => {
   try {
-    const { name, contactInfo, info } = req.body;
+    const { name, contactInfo, info, sessionPrice } = req.body;
 
     if (!name) {
       return res.status(400).json({ error: 'Name is required' });
@@ -65,6 +65,7 @@ router.post('/', authMiddleware, async (req, res) => {
       name,
       contactInfo,
       info,
+      sessionPrice: sessionPrice || 0,
       userId: req.user.userId,
     });
 
