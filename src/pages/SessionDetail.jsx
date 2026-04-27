@@ -2,7 +2,10 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { formatDate } from '../utils/formatDate';
 import { getClientById } from '../services/clientService';
-import { getSessionById } from '../services/sessionService'; 
+import { getSessionById } from '../services/sessionService';
+import { apiFetch } from '@/services/api';
+import { useToast } from '@/hooks/use-toast';
+
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 
@@ -32,19 +35,24 @@ function getInitials(name = '') {
 function SessionDetail() {
   const { clientId, sessionId } = useParams();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const [client, setClient] = useState(null);
   const [session, setSession] = useState(null);
 
+  const [amount, setAmount] = useState(0);
+  const [isPaid, setIsPaid] = useState(false);
+  const [loadingPayment, setLoadingPayment] = useState(false);
+
+  // 🔥 Load data
   useEffect(() => {
     async function loadData() {
       try {
         const [clientData, sessionData] = await Promise.all([
-          getClientById(clientId),   // ✅ NO Number()
-          getSessionById(sessionId), // ✅ FIXED
+          getClientById(clientId),
+          getSessionById(sessionId),
         ]);
 
-        // ✅ SAFE CHECK (works for both online/offline)
         if (String(sessionData.clientId) !== String(clientId)) {
           navigate('/not-found');
           return;
@@ -61,12 +69,48 @@ function SessionDetail() {
     loadData();
   }, [clientId, sessionId, navigate]);
 
+  // 🔥 FIX: sync state after session loads
+  useEffect(() => {
+    if (session) {
+      setAmount(session.amount || 0);
+      setIsPaid(session.isPaid || false);
+    }
+  }, [session]);
+
+  // 🔥 Save payment
+  const handlePaymentUpdate = async () => {
+    try {
+      setLoadingPayment(true);
+
+      await apiFetch(`/sessions/${session._id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          amount: Number(amount),
+          isPaid,
+        }),
+      });
+
+      toast({
+        title: "Success",
+        description: "Payment updated",
+      });
+
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: err.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingPayment(false);
+    }
+  };
+
+  // 🔄 Loading skeleton
   if (!client || !session) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6">
         <Card className="w-full max-w-lg space-y-4 p-6">
-
-          {/* HEADER */}
           <div className="flex items-center gap-4">
             <Skeleton className="h-12 w-12 rounded-full" />
             <div className="space-y-2">
@@ -75,22 +119,18 @@ function SessionDetail() {
             </div>
           </div>
 
-          {/* TITLE */}
           <Skeleton className="h-4 w-40" />
 
-          {/* CONTENT */}
           <div className="space-y-2">
             <Skeleton className="h-3 w-full" />
             <Skeleton className="h-3 w-[90%]" />
             <Skeleton className="h-3 w-[80%]" />
           </div>
 
-          {/* BUTTONS */}
           <div className="flex justify-between pt-4">
             <Skeleton className="h-9 w-28 rounded-md" />
             <Skeleton className="h-9 w-32 rounded-md" />
           </div>
-
         </Card>
       </div>
     );
@@ -126,7 +166,62 @@ function SessionDetail() {
           )}
         </CardHeader>
 
-        {/* CONTENT */}
+        {/* 💰 PAYMENT SECTION */}
+        <CardContent className="space-y-4 border-t border-white/10 pt-4">
+
+          {/* Amount */}
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">Amount (₹)</p>
+
+            <input
+              type="number"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              className="w-full rounded-md border border-white/10 bg-black/40 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-white/20"
+            />
+          </div>
+
+          {/* Payment Status */}
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm">Payment Status</p>
+              <p className="text-xs text-muted-foreground">
+                Mark session as paid/unpaid
+              </p>
+            </div>
+
+            <Button
+              variant={isPaid ? "default" : "secondary"}
+              onClick={() => setIsPaid(prev => !prev)}
+              className={isPaid ? "bg-green-600 hover:bg-green-700" : ""}
+            >
+              {isPaid ? "Paid" : "Unpaid"}
+            </Button>
+          </div>
+
+          {/* Status Banner */}
+          <div
+            className={`rounded-md px-3 py-2 text-sm ${
+              isPaid
+                ? "bg-green-900/40 text-green-300 border border-green-500/20"
+                : "bg-red-900/40 text-red-300 border border-red-500/20"
+            }`}
+          >
+            {isPaid ? "Payment completed" : "Payment pending"}
+          </div>
+
+          {/* Save Button */}
+          <Button
+            onClick={handlePaymentUpdate}
+            disabled={loadingPayment}
+            className="w-full"
+          >
+            {loadingPayment ? "Saving..." : "Save Payment"}
+          </Button>
+
+        </CardContent>
+
+        {/* NOTES */}
         <CardContent>
           <div className="whitespace-pre-wrap text-sm">
             {session.notes || 'No notes recorded.'}
@@ -144,9 +239,7 @@ function SessionDetail() {
 
           <Button
             onClick={() =>
-              navigate(
-                `/clients/${clientId}/sessions/${sessionId}/edit`
-              )
+              navigate(`/clients/${clientId}/sessions/${sessionId}/edit`)
             }
           >
             Edit Session

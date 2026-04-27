@@ -16,6 +16,17 @@ const sessionSchema = new mongoose.Schema({
   notes: {
     type: String,
   },
+
+    isPaid: {
+    type: Boolean,
+    default: false,
+    },
+
+    amount: {
+    type: Number,
+    default: 0,
+    },
+
   userId: {
   type: mongoose.Schema.Types.ObjectId,
   ref: 'User',

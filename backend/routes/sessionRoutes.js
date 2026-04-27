@@ -7,7 +7,7 @@ const router = express.Router();
 // ✅ CREATE session
 router.post('/', authMiddleware, async (req, res) => {
   try {
-    const { clientId, date, title, notes } = req.body;
+    const { clientId, date, title, notes, amount, isPaid} = req.body;
 
     if (!clientId || !date) {
       return res.status(400).json({
@@ -20,6 +20,8 @@ router.post('/', authMiddleware, async (req, res) => {
       date,
       title,
       notes,
+      amount: amount || 0,
+      isPaid: isPaid || false,
       userId: req.user.userId,
     });
 
@@ -86,7 +88,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
 // ✅ UPDATE session (FIXED)
 router.put('/:id', authMiddleware, async (req, res) => {
   try {
-    const { date, title, notes } = req.body;
+    const { date, title, notes, amount, isPaid } = req.body;
 
     const session = await Session.findById(req.params.id);
 
@@ -104,6 +106,8 @@ router.put('/:id', authMiddleware, async (req, res) => {
         ...(date && { date }),
         ...(title !== undefined && { title }),
         ...(notes !== undefined && { notes }),
+        ...(amount !== undefined && { amount }),
+        ...(isPaid !== undefined && { isPaid }),
       },
       { new: true }
     );
