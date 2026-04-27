@@ -22,6 +22,7 @@ import About from './pages/About';
 import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings';
 import { Toaster } from '@/components/ui/toaster';
+import Payments from './pages/Payments';
 
 function App() {
   return (
@@ -144,6 +145,14 @@ function App() {
           <ProtectedRoute>
             <Layout>
               <Settings />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
+        <Route path="/payments" element={
+          <ProtectedRoute>
+            <Layout>
+              <Payments />
             </Layout>
           </ProtectedRoute>
         } />

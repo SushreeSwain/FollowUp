@@ -48,6 +48,17 @@ export default function AppSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
 
+              {mode === 'online' && (
+                <SidebarMenuItem>
+                    <SidebarMenuButton
+                    className="text-base font-medium hover:scale-[1.02] transition-all"
+                    onClick={() => navigate('/payments')}
+                    >
+                    Payments
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+                )}
+
               <SidebarMenuItem>
                 <SidebarMenuButton
                     className="text-base font-medium hover:scale-[1.02] transition-all"
