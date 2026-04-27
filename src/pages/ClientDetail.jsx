@@ -213,10 +213,19 @@ function ClientDetail() {
 
           {/* Client Info */}
           <div className="space-y-4">
+
             <div>
               <p className="text-sm text-muted-foreground">Contact</p>
               <p className="text-base">
                 {client.contactInfo || '—'}
+              </p>
+            </div>
+
+            {/* 💰 DEFAULT SESSION PRICE */}
+            <div>
+              <p className="text-sm text-muted-foreground">Session Price</p>
+              <p className="text-base font-medium text-green-400">
+                ₹ {client.sessionPrice || 0}
               </p>
             </div>
 
@@ -226,6 +235,7 @@ function ClientDetail() {
                 {client.info || '—'}
               </p>
             </div>
+
           </div>
 
           <Separator />

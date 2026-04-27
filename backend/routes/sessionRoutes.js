@@ -90,7 +90,9 @@ router.get('/', authMiddleware, async (req, res) => {
   try {
     const sessions = await Session.find({
       userId: req.user.userId,
-    }).sort({ date: -1 });
+    })
+    .populate('clientId', 'name')   
+    .sort({ date: -1 });
 
     res.json(sessions);
   } catch (err) {

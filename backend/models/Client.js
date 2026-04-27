@@ -15,6 +15,12 @@ const clientSchema = new mongoose.Schema({
     type : Boolean,
     default: false,
   },
+
+  sessionPrice: {
+    type: Number,
+    default: 0,
+  },
+
   userId: {
   type: mongoose.Schema.Types.ObjectId,
   ref: 'User',

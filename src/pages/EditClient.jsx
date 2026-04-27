@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getClientById, updateClient } from '../services/clientService';
 import { Skeleton } from '@/components/ui/skeleton';
 
-
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -24,6 +23,7 @@ function EditClient() {
   const [name, setName] = useState('');
   const [contactInfo, setContactInfo] = useState('');
   const [info, setInfo] = useState('');
+  const [sessionPrice, setSessionPrice] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -40,11 +40,13 @@ function EditClient() {
         setName(client.name || '');
         setContactInfo(client.contactInfo || '');
         setInfo(client.info || '');
+        setSessionPrice(client.sessionPrice || 0); // 🔥 PREFILL
+
       } catch (err) {
         console.error(err);
         navigate('/not-found');
       } finally {
-        setLoading(false); 
+        setLoading(false);
       }
     }
 
@@ -64,6 +66,7 @@ function EditClient() {
         name: name.trim(),
         contactInfo: contactInfo.trim(),
         info: info.trim(),
+        sessionPrice: Number(sessionPrice) || 0, // 🔥 SEND
       });
 
       navigate(`/clients/${id}`);
@@ -81,6 +84,7 @@ function EditClient() {
           <Skeleton className="h-6 w-40" />
           <Skeleton className="h-4 w-60" />
 
+          <Skeleton className="h-10 w-full" />
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-24 w-full" />
@@ -115,6 +119,7 @@ function EditClient() {
               </p>
             )}
 
+            {/* NAME */}
             <div className="space-y-1">
               <Label htmlFor="name">
                 Name <span className="text-destructive">*</span>
@@ -126,6 +131,7 @@ function EditClient() {
               />
             </div>
 
+            {/* CONTACT */}
             <div className="space-y-1">
               <Label htmlFor="contact">
                 Contact
@@ -137,6 +143,20 @@ function EditClient() {
               />
             </div>
 
+            {/* 💰 SESSION PRICE */}
+            <div className="space-y-1">
+              <Label>Session Price (₹)</Label>
+              <Input
+                type="number"
+                value={sessionPrice}
+                onChange={(e) => setSessionPrice(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                This will be used as default price for sessions
+              </p>
+            </div>
+
+            {/* INFO */}
             <div className="space-y-1">
               <Label htmlFor="info">
                 Info
@@ -148,6 +168,7 @@ function EditClient() {
                 onChange={(e) => setInfo(e.target.value)}
               />
             </div>
+
           </CardContent>
 
           <CardFooter className="flex justify-between">

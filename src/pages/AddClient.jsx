@@ -21,6 +21,7 @@ function AddClient() {
   const [name, setName] = useState('');
   const [contactInfo, setContactInfo] = useState('');
   const [info, setInfo] = useState('');
+  const [sessionPrice, setSessionPrice] = useState('');
   const [error, setError] = useState('');
 
   async function handleSubmit(e) {
@@ -36,6 +37,7 @@ function AddClient() {
         name: name.trim(),
         contactInfo: contactInfo.trim(),
         info: info.trim(),
+        sessionPrice: Number(sessionPrice) || 0,
       });
 
       navigate('/clients');
@@ -65,6 +67,7 @@ function AddClient() {
               </p>
             )}
 
+            {/* NAME */}
             <div className="space-y-1">
               <Label htmlFor="name">
                 Name <span className="text-destructive">*</span>
@@ -78,6 +81,7 @@ function AddClient() {
               />
             </div>
 
+            {/* CONTACT */}
             <div className="space-y-1">
               <Label htmlFor="contact">
                 Contact
@@ -90,6 +94,21 @@ function AddClient() {
               />
             </div>
 
+            {/* 💰 SESSION PRICE */}
+            <div className="space-y-1">
+              <Label>Session Price (₹)</Label>
+              <Input
+                type="number"
+                placeholder="e.g. 1000"
+                value={sessionPrice}
+                onChange={(e) => setSessionPrice(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                This will be used as default price for sessions
+              </p>
+            </div>
+
+            {/* INFO */}
             <div className="space-y-1">
               <Label htmlFor="info">
                 Info
@@ -102,6 +121,7 @@ function AddClient() {
                 onChange={(e) => setInfo(e.target.value)}
               />
             </div>
+
           </CardContent>
 
           <CardFooter className="flex justify-between">

@@ -69,13 +69,18 @@ function SessionDetail() {
     loadData();
   }, [clientId, sessionId, navigate]);
 
-  // 🔥 FIX: sync state after session loads
+  // ✅ CLEAN PREFILL LOGIC (FINAL)
   useEffect(() => {
-    if (session) {
-      setAmount(session.amount || 0);
+    if (session && client) {
+      setAmount(
+        session.amount !== undefined && session.amount !== null
+          ? session.amount
+          : client.sessionPrice || 0
+      );
+
       setIsPaid(session.isPaid || false);
     }
-  }, [session]);
+  }, [session, client]);
 
   // 🔥 Save payment
   const handlePaymentUpdate = async () => {
@@ -179,6 +184,11 @@ function SessionDetail() {
               onChange={(e) => setAmount(e.target.value)}
               className="w-full rounded-md border border-white/10 bg-black/40 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-white/20"
             />
+
+            {/* 💡 DEFAULT PRICE HINT */}
+            <p className="text-xs text-muted-foreground">
+              Default: ₹{client.sessionPrice || 0}
+            </p>
           </div>
 
           {/* Payment Status */}
