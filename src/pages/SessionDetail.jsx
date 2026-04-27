@@ -69,20 +69,25 @@ function SessionDetail() {
     loadData();
   }, [clientId, sessionId, navigate]);
 
-  // ✅ CLEAN PREFILL LOGIC (FINAL)
+  
   useEffect(() => {
     if (session && client) {
+      const shouldUseDefault =
+        session.amount === undefined ||
+        session.amount === null ||
+        session.amount === 0; 
+
       setAmount(
-        session.amount !== undefined && session.amount !== null
-          ? session.amount
-          : client.sessionPrice || 0
+        shouldUseDefault
+          ? client.sessionPrice || 0
+          : session.amount
       );
 
       setIsPaid(session.isPaid || false);
     }
   }, [session, client]);
 
-  // 🔥 Save payment
+
   const handlePaymentUpdate = async () => {
     try {
       setLoadingPayment(true);
